@@ -12,7 +12,7 @@ typedef struct {
     void *sched_ctx;  // holds the scheduler context, for internal use
 
     // constructor/destructor
-    dynsched_interface_t *(*create)(dynsched_mem_manager_t *mem_manager);  // create a new scheduler
+    dynsched_interface_t *(*create)(dynsched_mem_manager_t *mem_manager, void *config);  // create a new scheduler
     void (*destroy)(dynsched_interface_t *sched);                          // destroy the scheduler
 
     // scheduler functions
@@ -31,6 +31,9 @@ typedef struct {
 /**------------------------------------------------------------------------
  *                           SCHEDULER FUNCTIONS
  *------------------------------------------------------------------------**/
+
+dynsched_interface_t *dynsched_create(dynsched_mem_manager_t *mem_manager, void *config);
+void dynsched_destroy(dynsched_interface_t *sched);
 
 void dynsched_isched_init(dynsched_interface_t *sched) { sched->init(sched->sched_ctx); }
 void dynsched_isched_add_task(dynsched_interface_t *sched, dynsched_task_desc_t task_descriptor) {

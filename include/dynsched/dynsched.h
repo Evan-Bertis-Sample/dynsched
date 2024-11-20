@@ -1,6 +1,7 @@
 #ifndef __DYNSCHED_H__
 #define __DYNSCHED_H__
 
+#include <dynsched/pqueue.h>
 #include <dynsched/sched.h>
 #include <dynsched/task.h>
 
@@ -8,20 +9,31 @@
  *                           PRIORITY SCHEDULER STRUCTURES
  *------------------------------------------------------------------------**/
 
+// This is an implementation of Linux's O(1) scheduler, which is a priority-based
 
 typedef struct {
+    uint8_t num_priority_levels;
+    long long time_slice;
+    long long reschedule_time;  // whenever we reset priorities, we need to reschedule
+} dynsched_psched_config_t;
+
+
+typedef struct {
+    dynsched_psched_config_t config;
+    dynsched_pqueue_t *queue;
     dynsched_mem_manager_t *mem_manager;
 } dynsched_psched_context_t;
 
 typedef struct {
     long long start_time;
+    int priority;
 } dynsched_psched_task_context_t;
 
 /**------------------------------------------------------------------------
  *                           PRIORITY SCHEDULER IMPLEMENTATION
  *------------------------------------------------------------------------**/
 
-dynsched_interface_t *dynsched_psched_create(dynsched_mem_manager_t *mem_manager);
+dynsched_interface_t *dynsched_psched_create(dynsched_mem_manager_t *mem_manager, void *config);
 void dynsched_psched_destroy(dynsched_interface_t *sched);
 
 void dynsched_psched_init(void *ctx);
