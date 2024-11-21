@@ -16,14 +16,16 @@ volatile bool clientConnected = false;
 #define TASK2_PRIORITY 1
 #define TASK3_PRIORITY 1
 
+void Task1(void *pvParameters);
+void Task2(void *pvParameters);
+void Task3(void *pvParameters);
+
 void setup() {
   Serial.begin(115200);
 
   // Create semaphore
   xLoRaSemaphore = xSemaphoreCreateBinary();
-
   
-
   // Create tasks
   xTaskCreatePinnedToCore(
     Task1,          // Task function
@@ -56,7 +58,7 @@ void setup() {
   );
 
   // Simulate external interrupt setup for LoRa (replace with actual ISR setup)
-  attachInterrupt(digitalPinToInterrupt(0), LoRaISR, RISING);
+  // attachInterrupt(digitalPinToInterrupt(0), LoRaISR, RISING);
 }
 
 void loop() {

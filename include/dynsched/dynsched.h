@@ -46,7 +46,6 @@ dynsched_task_t *dynsched_psched_next(void *ctx);
 dynsched_task_t *dynsched_psched_end(void *ctx);
 
 void dynsched_psched_iterate(dynsched_interface_t *sched, void (*task_func)(dynsched_task_t *));
-void dynsched_psched_destroy(dynsched_interface_t *sched);
 
 /**------------------------------------------------------------------------
  *                           PRIORITY SCHEDULER INTERFACE
