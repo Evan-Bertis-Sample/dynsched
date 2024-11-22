@@ -32,16 +32,16 @@ typedef struct {
  *                           SCHEDULER FUNCTIONS
  *------------------------------------------------------------------------**/
 
-dynsched_interface_t *dynsched_create(dynsched_mem_manager_t *mem_manager, void *config);
-void dynsched_destroy(dynsched_interface_t *sched);
+dynsched_interface_t *dynsched_create(dynsched_mem_manager_t *mem_manager, dynsched_interface_t *interface, void *config) {
+    dynsched_interface_t *sched = interface->create(mem_manager, config);
+    return sched;
+}
+
+void dynsched_destroy(dynsched_interface_t *sched) { sched->destroy(sched); }
 
 void dynsched_isched_init(dynsched_interface_t *sched) { sched->init(sched->sched_ctx); }
-void dynsched_isched_add_task(dynsched_interface_t *sched, dynsched_task_desc_t task_descriptor) {
-    sched->add_task(sched->sched_ctx, &task_descriptor);
-}
-void dynsched_isched_remove_task(dynsched_interface_t *sched, char *task_name) {
-    sched->remove_task(sched->sched_ctx, task_name);
-}
+void dynsched_isched_add_task(dynsched_interface_t *sched, dynsched_task_desc_t task_descriptor) { sched->add_task(sched->sched_ctx, &task_descriptor); }
+void dynsched_isched_remove_task(dynsched_interface_t *sched, char *task_name) { sched->remove_task(sched->sched_ctx, task_name); }
 void dynsched_isched_run(dynsched_interface_t *sched) { sched->run(sched->sched_ctx); }
 
 dynsched_task_t *dynsched_isched_begin(dynsched_interface_t *sched) { return sched->begin(sched->sched_ctx); }
