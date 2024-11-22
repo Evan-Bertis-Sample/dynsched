@@ -13,7 +13,7 @@ typedef struct {
 
     // constructor/destructor
     dynsched_interface_t *(*create)(dynsched_mem_manager_t *mem_manager, void *config);  // create a new scheduler
-    void (*destroy)(dynsched_interface_t *sched);                          // destroy the scheduler
+    void (*destroy)(dynsched_interface_t *sched);                                        // destroy the scheduler
 
     // scheduler functions
     void (*init)(void *ctx);                                  // initialize the scheduler

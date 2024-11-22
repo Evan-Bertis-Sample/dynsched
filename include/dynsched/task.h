@@ -15,8 +15,8 @@
 typedef struct {
     void *sched_task_ctx;  // holds the scheduler context, for internal use,
                            // used to determine how to schedule the task
-    void *task_ctx;  // holds the task context, for internal use, used to run
-                     // the task
+    void *task_ctx;        // holds the task context, for internal use, used to run
+                           // the task
 } dynsched_task_context_t;
 
 /// @brief Task descriptor
@@ -39,18 +39,13 @@ typedef struct {
  *------------------------------------------------------------------------**/
 
 /// @brief Create a new task
-/// @param task_func  The task function
-/// @param task_name The task name
-/// @param stack_size  The stack size
 /// @param mem_manager  The memory manager, used to allocate memory for the task
-/// @return The new task
-dynsched_task_desc_t *dynsched_task_create(void (*task_func)(void *),
-                                           char *task_name, uint32_t stack_size,
-                                           dynsched_mem_manager_t *mem_manager);
-/// @brief Free a task
-/// @param task  The task to free
+/// @param task  The task descriptor
+dynsched_task_t *dynsched_task_create(dynsched_mem_manager_t *mem_manager, dynsched_task_desc_t *task);
+
+/// @brief Destroy a task
 /// @param mem_manager  The memory manager, used to free memory for the task
-void dynsched_task_free(dynsched_task_desc_t *task,
-                        dynsched_mem_manager_t *mem_manager);
+/// @param task  The task descriptor
+void dynsched_task_destroy(dynsched_mem_manager_t *mem_manager, dynsched_task_t *task);
 
 #endif  // __TASK_H__
