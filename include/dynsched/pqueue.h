@@ -10,9 +10,11 @@
  *                           PRIORITY QUEUE STRUCTURES
  *------------------------------------------------------------------------**/
 
+
+typedef struct dynsched_psched_node dynsched_pqueue_node_t;
 typedef int (*dynsched_pqueue_compare_func)(void *, void *);
 
-typedef struct {
+typedef struct dynsched_psched_node {
     void *data;
     dynsched_pqueue_node_t *next;
     dynsched_pqueue_node_t *prev;

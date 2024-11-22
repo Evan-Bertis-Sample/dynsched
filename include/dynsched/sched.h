@@ -8,7 +8,9 @@
  *                           SCHEDULER INTERFACE
  *------------------------------------------------------------------------**/
 
-typedef struct {
+typedef struct dynsched_interface dynsched_interface_t;
+
+typedef struct dynsched_interface {
     void *sched_ctx;  // holds the scheduler context, for internal use
 
     // constructor/destructor

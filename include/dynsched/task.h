@@ -30,7 +30,7 @@ typedef struct {
 /// @brief Task
 /// @note Used to represent a task
 typedef struct {
-    dynsched_task_desc_t task;        // task descriptor
+    dynsched_task_desc_t desc;        // task descriptor
     dynsched_task_context_t context;  // task context
 } dynsched_task_t;
 
