@@ -4,6 +4,7 @@
 #include <dynsched/pqueue.h>
 #include <dynsched/sched.h>
 #include <dynsched/task.h>
+#include <dynsched/prempt.h>
 
 /**------------------------------------------------------------------------
  *                           PRIORITY SCHEDULER STRUCTURES
@@ -15,6 +16,7 @@ typedef struct {
     uint8_t num_priority_levels;
     long long time_slice;
     long long reschedule_time;  // whenever we reset priorities, we need to reschedule
+    dynsched_prempt_interface_t *prempt;
 } dynsched_psched_config_t;
 
 
@@ -22,6 +24,7 @@ typedef struct {
     dynsched_psched_config_t config;
     dynsched_pqueue_t *queue;
     dynsched_mem_manager_t *mem_manager;
+    dynsched_prempt_interface_t *prempt;
 } dynsched_psched_context_t;
 
 typedef struct {
