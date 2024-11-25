@@ -9,6 +9,8 @@ typedef struct {
 
 typedef struct {
     // something something...
+    dynsched_mem_manager_t *mem_manager;
+    dynsched_prempt_espx_config_t *platform_ctx;
 } dynsched_prempt_espx_context_t;
 
 dynsched_prempt_interface_t *dynsched_prempt_espx_create(dynsched_mem_manager_t *mem_manager, void *config);
