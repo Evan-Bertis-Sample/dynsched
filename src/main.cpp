@@ -46,6 +46,7 @@ void setup() {
     &Task2Handle,
     1
   );
+  
 
   xTaskCreatePinnedToCore(
     Task3,

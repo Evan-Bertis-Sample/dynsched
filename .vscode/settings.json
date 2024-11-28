@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.compute": "hlsl",
+        "esp_partition.h": "c"
+    }
+}
