@@ -25,6 +25,7 @@ typedef struct {
     void (*task_func)(void *);  // task function
     char *task_name;            // task name
     uint32_t stack_size;        // stack size
+    uint32_t register_size;     // size of all the relevant registers to save
 } dynsched_task_desc_t;
 
 /// @brief Task

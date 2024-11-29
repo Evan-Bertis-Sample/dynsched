@@ -1,44 +1,44 @@
-#ifndef __preempt_H__
-#define __preempt_H__
+#ifndef __PREMPT_H__
+#define __PREMPT_H__
 
 #include <dynsched/mem.h>
 
 typedef struct {
-    uint32_t preempt_time;
-    void (*preempt_func)(void *);
-    void (*after_preempt_func)(void *);
-} dynsched_preempt_args_t;
+    uint32_t prempt_time;
+    void (*prempt_func)(void *);
+    void (*after_prempt_func)(void *);
+} dynsched_prempt_args_t;
 
 typedef struct {
     void *platform_ctx;
 
     // constructor/destructor
-    dynsched_preempt_interface_t *(*create)(dynsched_mem_manager_t *mem_manager, void *config);
-    void (*destroy)(dynsched_preempt_interface_t *preempt);
+    dynsched_prempt_interface_t *(*create)(dynsched_mem_manager_t *mem_manager, void *config);
+    void (*destroy)(dynsched_prempt_interface_t *prempt);
 
-    // preempt functions
+    // prempt functions
     void (*init)(void *ctx);
     void (*start)(void *ctx);
     void (*stop)(void *ctx);
-    void (*preempt)(void *ctx, dynsched_preempt_args_t *args);
+    void (*prempt)(void *ctx, dynsched_prempt_args_t *args);
 
     // lock functions
     void (*lock)(void *ctx);
     void (*unlock)(void *ctx);
 
-} dynsched_preempt_interface_t;
+} dynsched_prempt_interface_t;
 
-dynsched_preempt_interface_t dynsched_preempt_create(dynsched_mem_manager_t *mem_manager, dynsched_preempt_interface_t *interface, void *config) {
-    dynsched_preempt_interface_t *interface = interface->create(mem_manager, config);
+dynsched_prempt_interface_t dynsched_prempt_create(dynsched_mem_manager_t *mem_manager, dynsched_prempt_interface_t *interface, void *config) {
+    dynsched_prempt_interface_t *interface = interface->create(mem_manager, config);
     return *interface;
 }
 
-void dynsched_preempt_destroy(dynsched_preempt_interface_t *preempt) { preempt->destroy(preempt); }
-void dynsched_preempt_init(dynsched_preempt_interface_t *preempt) { preempt->init(preempt->platform_ctx); }
-void dynsched_preempt_start(dynsched_preempt_interface_t *preempt) { preempt->start(preempt->platform_ctx); }
-void dynsched_preempt_stop(dynsched_preempt_interface_t *preempt) { preempt->stop(preempt->platform_ctx); }
-void dynsched_preempt_preempt(dynsched_preempt_interface_t *preempt, dynsched_preempt_args_t *args) { preempt->preempt(preempt->platform_ctx, args); }
-void dynsched_preempt_lock(dynsched_preempt_interface_t *preempt) { preempt->lock(preempt->platform_ctx); }
-void dynsched_preempt_unlock(dynsched_preempt_interface_t *preempt) { preempt->unlock(preempt->platform_ctx); }
+void dynsched_prempt_destroy(dynsched_prempt_interface_t *prempt) { prempt->destroy(prempt); }
+void dynsched_prempt_init(dynsched_prempt_interface_t *prempt) { prempt->init(prempt->platform_ctx); }
+void dynsched_prempt_start(dynsched_prempt_interface_t *prempt) { prempt->start(prempt->platform_ctx); }
+void dynsched_prempt_stop(dynsched_prempt_interface_t *prempt) { prempt->stop(prempt->platform_ctx); }
+void dynsched_prempt_prempt(dynsched_prempt_interface_t *prempt, dynsched_prempt_args_t *args) { prempt->prempt(prempt->platform_ctx, args); }
+void dynsched_prempt_lock(dynsched_prempt_interface_t *prempt) { prempt->lock(prempt->platform_ctx); }
+void dynsched_prempt_unlock(dynsched_prempt_interface_t *prempt) { prempt->unlock(prempt->platform_ctx); }
 
-#endif  // __preempt_H__
+#endif  // __PREMPT_H__

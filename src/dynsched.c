@@ -49,15 +49,31 @@ void dynsched_psched_init(void *ctx) {
     // psched_ctx->queue = dynsched_pqueue_create(psched_ctx->mem_manager, psched_ctx->config.num_priority_levels);
 }
 
-void dynsched_psched_add_task(void *ctx, dynsched_task_desc_t *task) {
+void dynsched_psched_add_task(void *ctx, dynsched_task_desc_t *task_desc) {
     DYNSCHED_PRINT("Adding task to priority scheduler\n");
     dynsched_psched_context_t *psched_ctx = (dynsched_psched_context_t *)ctx;
-    // dynsched_pqueue_push(psched_ctx->queue, task, task->priority);
+
+    dynsched_task_t *task = dynsched_task_create(psched_ctx->mem_manager, task_desc);
+
+    // now we need to create the task context
+    dynsched_psched_task_context_t *task_ctx = 
+        (dynsched_psched_task_context_t *)dynsched_mem_alloc(psched_ctx->mem_manager, sizeof(dynsched_psched_task_context_t));
+
+    *task_ctx = (dynsched_psched_task_context_t) {
+        .start_time = psched_ctx->miilis_fn(),
+        .priority = 0,
+        .task_registers = dynsched_mem_alloc(psched_ctx->mem_manager, task->desc.register_size),
+        .task_stack = dynsched_mem_alloc(psched_ctx->mem_manager, task->desc.stack_size),
+    };
+
+    // we need to add the task to our prority queue
+    dynsched_pqueue_insert(psched_ctx->queue, task, task_ctx->priority);
+
 }
 
 void dynsched_psched_remove_task(void *ctx, char *task_name) {
     DYNSCHED_PRINT("Removing task from priority scheduler\n");
-    dynsched_psched_context_t *psched_ctx = (dynsched_psched_context_t *)ctx;
+    // dynsched_psched_context_t *psched_ctx = (dynsched_psched_context_t *)ctx;
     // dynsched_pqueue_node_t *node = dynsched_pqueue_peek_node(psched_ctx->queue);
     // while (node != NULL) {
     //     dynsched_task_desc_t *task = (dynsched_task_desc_t *)node->data;
@@ -68,6 +84,8 @@ void dynsched_psched_remove_task(void *ctx, char *task_name) {
     //     }
     //     node = dynsched_pqueue_next(psched_ctx->queue);
     // }
+
+
 }
 
 void dynsched_psched_run(void *ctx) {

@@ -6,7 +6,7 @@
  *
  *------------------------------------------------------------------------**/
 
-#include <dynsched/prempt_espx.h>
+#include <dynsched/espx/prempt_espx.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
@@ -15,25 +15,6 @@
 /**------------------------------------------------------------------------
  *                           ESP32 PREMPTION HELPERS
  *------------------------------------------------------------------------**/
-
-static inline espx_save_task_context(dynsched_prempt_interface_t *prempt) {
-    DYNSCHED_PRINT("Saving ESP32 task context\n");
-    dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)prempt->platform_ctx;
-    // save the current task context, we have to do this in assembly
-
-    asm(
-        "movi a0, 0x0\n"
-        "call0 0x4000f0e0\n");
-}
-
-static inline espx_restore_task_context(dynsched_prempt_interface_t *prempt) {
-    DYNSCHED_PRINT("Restoring ESP32 task context\n");
-    dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)prempt->platform_ctx;
-    // restore the current task context, we have to do this in assembly
-    asm(
-        "movi a0, 0x0\n"
-        "call0 0x4000f0e0\n");
-}
 
 bool espx_timer_isr_handler(void *args) {
     DYNSCHED_PRINT("Handling ESP32 timer ISR\n");
@@ -99,6 +80,10 @@ void dynsched_prempt_espx_stop(void *ctx) {
 void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *args) {
     DYNSCHED_PRINT("Preempting ESP32 preemption interface\n");
     dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)ctx;
+
+    // this function should only ever be called from the scheduler, when we 
+    // are not in the middle of a task
+    // if we are in the middle of a task, something has seriously gone wrong          
 }
 
 void dynsched_prempt_espx_lock(void *ctx) {

@@ -25,11 +25,14 @@ typedef struct {
     dynsched_pqueue_t *queue;
     dynsched_mem_manager_t *mem_manager;
     dynsched_prempt_interface_t *prempt;
+    uint32_t (*miilis_fn)(void);
 } dynsched_psched_context_t;
 
 typedef struct {
     long long start_time;
     int priority;
+    void *task_registers; // holds the task registers, for context switching
+    void *task_stack;    // holds the task stack, for context switching
 } dynsched_psched_task_context_t;
 
 /**------------------------------------------------------------------------

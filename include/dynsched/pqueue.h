@@ -44,9 +44,10 @@ void *dynsched_pqueue_peek(dynsched_pqueue_t *queue);
 dynsched_pqueue_node_t *dynsched_pqueue_pop_node(dynsched_pqueue_t *queue);
 dynsched_pqueue_node_t *dynsched_pqueue_peek_node(dynsched_pqueue_t *queue);
 void dynsched_pqueue_sort(dynsched_pqueue_t *queue);
-void dynsched_pqueue_begin(dynsched_pqueue_t *queue);
-void dynsched_pqueue_next(dynsched_pqueue_t *queue);
-void dynsched_pqueue_end(dynsched_pqueue_t *queue);
+
+void *dynsched_pqueue_begin(dynsched_pqueue_t *queue);
+void *dynsched_pqueue_next(dynsched_pqueue_t *queue);
+void *dynsched_pqueue_end(dynsched_pqueue_t *queue);
 
 /**------------------------------------------------------------------------
  *                           PRIORITY QUEUE INTERNAL FUNCTIONS
