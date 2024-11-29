@@ -2,15 +2,28 @@
 #define __PREMPT_ESPX_H__
 
 #include <dynsched/prempt.h>
+#include <driver/timer.h>
 
 typedef struct {
     // something something...
+    timer_group_t group_num;
+    timer_idx_t timer_num;
 } dynsched_prempt_espx_config_t;
 
+typedef enum {
+    DYNSCHED_PREMPT_ESPX_STATE_IDLE,
+    DYNSCHED_PREMPT_ESPX_STATE_RUNNING,
+    DYNSCHED_PREMPT_ESPX_STATE_STOPPED,
+} dynsched_prempt_espx_state_t;
+
 typedef struct {
-    // something something...
+    // configuration
+    dynsched_prempt_espx_config_t *platform_config;
     dynsched_mem_manager_t *mem_manager;
-    dynsched_prempt_espx_config_t *platform_ctx;
+
+    // state variables
+    dynsched_prempt_espx_state_t state;
+
 } dynsched_prempt_espx_context_t;
 
 dynsched_prempt_interface_t *dynsched_prempt_espx_create(dynsched_mem_manager_t *mem_manager, void *config);
