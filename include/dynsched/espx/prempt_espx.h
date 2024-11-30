@@ -61,9 +61,6 @@ void dynsched_prempt_espx_save_task_context(dynsched_prempt_args_t * prempt_args
 void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t * prempt_args);
 
 
-
-
-
 dynsched_prempt_interface_t dynsched_prempt_espx = {
     .platform_ctx = NULL,
 

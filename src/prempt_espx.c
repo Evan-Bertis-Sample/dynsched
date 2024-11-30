@@ -16,6 +16,16 @@
  *                           ESP32 PREMPTION HELPERS
  *------------------------------------------------------------------------**/
 
+void dynsched_prempt_espx_save_task_context(dynsched_prempt_args_t *prempt_args) {
+    DYNSCHED_PRINT("Saving ESP32 task context\n");
+    __asm_espx_save_task_context(prempt_args);
+}
+
+void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t *prempt_args) {
+    DYNSCHED_PRINT("Restoring ESP32 task context\n");
+    __asm_espx_restore_task_context(prempt_args);
+}
+
 bool espx_timer_isr_handler(void *args) {
     DYNSCHED_PRINT("Handling ESP32 timer ISR\n");
     dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)args;
@@ -81,9 +91,9 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *args) {
     DYNSCHED_PRINT("Preempting ESP32 preemption interface\n");
     dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)ctx;
 
-    // this function should only ever be called from the scheduler, when we 
+    // this function should only ever be called from the scheduler, when we
     // are not in the middle of a task
-    // if we are in the middle of a task, something has seriously gone wrong          
+    // if we are in the middle of a task, something has seriously gone wrong
 }
 
 void dynsched_prempt_espx_lock(void *ctx) {
