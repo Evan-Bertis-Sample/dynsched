@@ -16,14 +16,14 @@
  *                           ESP32 PREMPTION HELPERS
  *------------------------------------------------------------------------**/
 
-void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_context_data_t *data) {
+void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf) {
     DYNSCHED_PRINT("Saving ESP32 task context\n");
-    __asm_espx_save_task_context(data);
+    __asm_espx_save_task_context(state_buf);
 }
 
-void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t *data) {
+void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf) {
     DYNSCHED_PRINT("Restoring ESP32 task context\n");
-    __asm_espx_restore_task_context(data);
+    __asm_espx_restore_task_context(state_buf);
 }
 
 bool espx_timer_isr_handler(void *args) {
@@ -53,8 +53,8 @@ bool espx_timer_isr_handler(void *args) {
 dynsched_prempt_interface_t *dynsched_prempt_espx_create(dynsched_mem_manager_t *mem_manager, void *config) {
     DYNSCHED_PRINT("Creating ESP32 preemption interface\n");
 
-    dynsched_prempt_espx_context_t *ctx = (dynsched_prempt_espx_context_t *)dynsched_mem_alloc(mem_manager, sizeof(dynsched_prempt_espx_context_t));
-    dynsched_prempt_interface_t *prempt = (dynsched_prempt_interface_t *)dynsched_mem_alloc(mem_manager, sizeof(dynsched_prempt_interface_t));
+    dynsched_prempt_espx_context_t *ctx = DYNSCHED_MALLOC(mem_manager, dynsched_prempt_espx_context_t);
+    dynsched_prempt_interface_t *prempt = DYNSCHED_MALLOC(mem_manager, dynsched_prempt_interface_t);
     ctx->platform_config = config;
 
     // copy over the template defined in dynsched_prempt_espx.h

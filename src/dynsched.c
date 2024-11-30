@@ -1,7 +1,7 @@
 /**------------------------------------------------------------------------
  *                             dynsched.c
  *
- *  An implementation of a priority scheduler for tasks, built for the ESP32.
+ *  An implementation of a priority scheduler for tasks.
  *
  *
  *------------------------------------------------------------------------**/
@@ -17,9 +17,8 @@
 
 dynsched_interface_t *dynsched_psched_create(dynsched_mem_manager_t *mem_manager, void *config) {
     DYNSCHED_PRINT("Creating priority scheduler\n");
-
-    dynsched_psched_context_t *ctx = (dynsched_psched_context_t *)dynsched_mem_alloc(mem_manager, sizeof(dynsched_psched_context_t));
-    dynsched_interface_t *sched = (dynsched_interface_t *)dynsched_mem_alloc(mem_manager, sizeof(dynsched_interface_t));
+    dynsched_psched_context_t *ctx = DYNSCHED_MALLOC(mem_manager, dynsched_psched_context_t);
+    dynsched_interface_t *sched = DYNSCHED_MALLOC(mem_manager, dynsched_interface_t);
     ctx->mem_manager = mem_manager;
     ctx->config = *((dynsched_psched_config_t *)config);
 
@@ -56,8 +55,7 @@ void dynsched_psched_add_task(void *ctx, dynsched_task_desc_t *task_desc) {
     dynsched_task_t *task = dynsched_task_create(psched_ctx->mem_manager, task_desc);
 
     // now we need to create the task context
-    dynsched_psched_task_context_t *task_ctx = 
-        (dynsched_psched_task_context_t *)dynsched_mem_alloc(psched_ctx->mem_manager, sizeof(dynsched_psched_task_context_t));
+    dynsched_psched_task_context_t *task_ctx = DYNSCHED_MALLOC(psched_ctx->mem_manager, dynsched_psched_task_context_t);
 
     *task_ctx = (dynsched_psched_task_context_t) {
         .start_time = psched_ctx->miilis_fn(),
@@ -67,7 +65,7 @@ void dynsched_psched_add_task(void *ctx, dynsched_task_desc_t *task_desc) {
     };
 
     // we need to add the task to our prority queue
-    dynsched_pqueue_insert(psched_ctx->queue, task, task_ctx->priority);
+    // dynsched_pqueue_insert(psched_ctx->queue, task, task_ctx->priority);
 
 }
 

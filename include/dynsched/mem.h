@@ -45,6 +45,7 @@ dynsched_mem_manager_t dynsched_default_mem_manager = {
     .free = dynsched_default_mem_free};
 
 #define DYNSCHED_DEFAULT_MEM dynsched_default_mem_manager
+#define DYNSCHED_MALLOC(manager, type) (type *)dynsched_mem_alloc(manager, sizeof(type))
 
 #endif
 

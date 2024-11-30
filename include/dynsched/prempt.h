@@ -3,8 +3,6 @@
 
 #include <dynsched/mem.h>
 typedef struct {
-    // where do we store stuff for the premption?
-    void *context_switch_data;
     void *task_data;  // used to call the task's function
     uint32_t prempt_time;
     void (*prempt_func)(void *);
@@ -30,9 +28,9 @@ typedef struct {
 
 } dynsched_prempt_interface_t;
 
-dynsched_prempt_interface_t dynsched_prempt_create(dynsched_mem_manager_t *mem_manager, dynsched_prempt_interface_t *interface, void *config) {
+dynsched_prempt_interface_t *dynsched_prempt_create(dynsched_mem_manager_t *mem_manager, dynsched_prempt_interface_t *interface, void *config) {
     dynsched_prempt_interface_t *interface = interface->create(mem_manager, config);
-    return *interface;
+    return interface;
 }
 
 void dynsched_prempt_destroy(dynsched_prempt_interface_t *prempt) { prempt->destroy(prempt); }

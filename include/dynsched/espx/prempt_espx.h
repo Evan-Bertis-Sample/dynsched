@@ -22,7 +22,7 @@ typedef struct {
     void *register_buffer;  // offset 0
     void *stack_buffer;     // offset 4
     uint32_t stack_size;    // offset 8
-} dynsched_prempt_espx_context_data_t;
+} dynsched_prempt_espx_state_buffer_t;
 
 typedef struct {
     // configuration
@@ -61,16 +61,16 @@ void dynsched_prempt_espx_unlock(void *ctx);
 extern "C" {
 #endif
 
-void __asm_espx_save_task_context(dynsched_prempt_espx_context_data_t *data);
-void __asm_espx_restore_task_context(dynsched_prempt_espx_context_data_t *data);
+void __asm_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
+void __asm_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
 
 #ifdef __cplusplus
 }
 #endif
 
 // use these functions to call the assembly functions, which is way nicer for debugging
-inline void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_context_data_t *data);
-inline void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t *data);
+inline void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
+inline void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
 
 dynsched_prempt_interface_t dynsched_prempt_espx = {
     .platform_ctx = NULL,
