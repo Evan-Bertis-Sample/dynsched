@@ -2,6 +2,7 @@
 #define __PREMPT_H__
 
 #include <dynsched/mem.h>
+
 typedef struct {
     void *task_data;  // used to call the task's function
     uint32_t prempt_time;
@@ -9,7 +10,9 @@ typedef struct {
     void (*after_prempt_func)(void *);
 } dynsched_prempt_args_t;
 
-typedef struct {
+typedef struct dynsched_prempt_interface dynsched_prempt_interface_t;
+
+typedef struct dynsched_prempt_interface {
     void *platform_ctx;
 
     // constructor/destructor
@@ -28,9 +31,9 @@ typedef struct {
 
 } dynsched_prempt_interface_t;
 
-dynsched_prempt_interface_t *dynsched_prempt_create(dynsched_mem_manager_t *mem_manager, dynsched_prempt_interface_t *interface, void *config) {
-    dynsched_prempt_interface_t *interface = interface->create(mem_manager, config);
-    return interface;
+dynsched_prempt_interface_t *dynsched_prempt_create(dynsched_mem_manager_t *mem_manager, dynsched_prempt_interface_t interface, void *config) {
+    dynsched_prempt_interface_t *instance = interface.create(mem_manager, config);
+    return instance;
 }
 
 void dynsched_prempt_destroy(dynsched_prempt_interface_t *prempt) { prempt->destroy(prempt); }

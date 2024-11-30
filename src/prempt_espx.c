@@ -43,7 +43,7 @@ bool espx_timer_isr_handler(void *args) {
     }
 
     // now we should restore the old context, which was saved before the task was prempted
-    dynsched_prempt_espx_restore_task_context(prempt_ctx->before_prempt_data);
+    dynsched_prempt_espx_restore_task_context(&prempt_ctx->before_prempt_data);
 }
 
 /**------------------------------------------------------------------------
@@ -102,7 +102,7 @@ void dynsched_prempt_espx_stop(void *ctx) {
     dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)ctx;
 }
 
-void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *args) {
+void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *prempt_args) {
     DYNSCHED_PRINT("Preempting ESP32 preemption interface\n");
     dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)ctx;
 
@@ -121,17 +121,14 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *args) {
 
     timer_set_alarm_value(prempt_ctx->platform_config->group_num,
                           prempt_ctx->platform_config->timer_num,
-                          args->prempt_time);
+                          prempt_args->prempt_time);
 
     timer_set_alarm(prempt_ctx->platform_config->group_num,
                     prempt_ctx->platform_config->timer_num,
                     TIMER_ALARM_EN);
 
-    timer_set_counter_enable_in_isr(prempt_ctx->platform_config->group_num,
-                                    prempt_ctx->platform_config->timer_num,
-                                    TIMER_START);
 
-    prempt_ctx->last_prempt = args;
+    prempt_ctx->last_prempt = prempt_args;
     prempt_ctx->last_prempt_time = prempt_ctx->platform_config->millis_fn();
     prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_RUNNING_PREMPT;
 
@@ -139,7 +136,7 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *args) {
     dynsched_prempt_espx_save_task_context(&prempt_ctx->before_prempt_data);
 
     // now we will run the function
-    args->prempt_func(args->task_data);
+    prempt_args->prempt_func(prempt_args->task_data);
 }
 
 void dynsched_prempt_espx_lock(void *ctx) {

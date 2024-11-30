@@ -18,14 +18,14 @@ uint32_t last_prempt_request = 0;
 uint32_t prempt_interval = 1000;
 uint32_t amount_of_prempts = 100;
 
-int32_t error_times[];
+int32_t *error_times;
 
 void setup() {
     mem_manager = DYNSCHED_DEFAULT_MEM;
     dynsched_mem_init(&mem_manager);
     prempt_interface = dynsched_prempt_create(
         &mem_manager,
-        &dynsched_prempt_espx,
+        DYNSCHED_PREMPT_ESPX,
         &prempt_config);
 
     dynsched_mem_alloc(&mem_manager, amount_of_prempts * sizeof(int32_t));
@@ -105,6 +105,7 @@ uint32_t millis_wrapper() {
 }
 
 void test_task(void *data) {
+    Serial.printf("Prempt #%d\n", prempt_counter);
     int32_t error_time = (int32_t)millis() - (int32_t)last_prempt_request;
     error_times[prempt_counter] = error_time;
     prempt_counter++;

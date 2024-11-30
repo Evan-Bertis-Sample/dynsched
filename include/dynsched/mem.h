@@ -38,13 +38,16 @@ void dynsched_default_mem_init(void *ctx) { return; }
 void *dynsched_default_mem_alloc(void *ctx, dynsched_mem_size_t size) { return malloc(size); }
 void dynsched_default_mem_free(void *ctx, void *ptr) { free(ptr); }
 
-dynsched_mem_manager_t dynsched_default_mem_manager = {
-    .manager_ctx = NULL,
-    .init = dynsched_default_mem_init,
-    .alloc = dynsched_default_mem_alloc,
-    .free = dynsched_default_mem_free};
+dynsched_mem_manager_t dynsched_default_mem_manager =
 
-#define DYNSCHED_DEFAULT_MEM dynsched_default_mem_manager
+#define DYNSCHED_DEFAULT_MEM                 \
+    (dynsched_mem_manager_t) {               \
+        .manager_ctx = NULL,                 \
+        .init = dynsched_default_mem_init,   \
+        .alloc = dynsched_default_mem_alloc, \
+        .free = dynsched_default_mem_free    \
+    }
+
 #define DYNSCHED_MALLOC(manager, type) (type *)dynsched_mem_alloc(manager, sizeof(type))
 
 #endif

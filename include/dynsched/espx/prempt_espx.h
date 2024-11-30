@@ -45,7 +45,7 @@ void dynsched_prempt_espx_destroy(dynsched_prempt_interface_t *prempt);
 void dynsched_prempt_espx_init(void *ctx);
 void dynsched_prempt_espx_start(void *ctx);
 void dynsched_prempt_espx_stop(void *ctx);
-void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *args);
+void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *prempt_args);
 void dynsched_prempt_espx_lock(void *ctx);
 void dynsched_prempt_espx_unlock(void *ctx);
 
@@ -72,22 +72,17 @@ void __asm_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_
 inline void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
 inline void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
 
-dynsched_prempt_interface_t dynsched_prempt_espx = {
-    .platform_ctx = NULL,
-
-    // constructor/destructor
-    .create = dynsched_prempt_espx_create,
-    .destroy = dynsched_prempt_espx_destroy,
-
-    // prempt functions
-    .init = dynsched_prempt_espx_init,
-    .start = dynsched_prempt_espx_start,
-    .stop = dynsched_prempt_espx_stop,
-    .prempt = dynsched_prempt_espx_prempt,
-
-    // lock functions
-    .lock = dynsched_prempt_espx_lock,
-    .unlock = dynsched_prempt_espx_unlock,
-};
+#define DYNSCHED_PREMPT_ESPX                     \
+    (dynsched_prempt_interface_t) {              \
+        .platform_ctx = NULL,                    \
+        .create = dynsched_prempt_espx_create,   \
+        .destroy = dynsched_prempt_espx_destroy, \
+        .init = dynsched_prempt_espx_init,       \
+        .start = dynsched_prempt_espx_start,     \
+        .stop = dynsched_prempt_espx_stop,       \
+        .prempt = dynsched_prempt_espx_prempt,   \
+        .lock = dynsched_prempt_espx_lock,       \
+        .unlock = dynsched_prempt_espx_unlock,   \
+    }
 
 #endif  // __PREMPT_ESPX_H__
