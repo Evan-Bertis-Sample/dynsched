@@ -2,10 +2,10 @@
 #define __PREMPT_ESPX_H__
 
 #include <driver/timer.h>
+
 #include "dynsched/prempt.h"
 
 typedef struct {
-    // something something...
     timer_group_t group_num;
     timer_idx_t timer_num;
     uint32_t (*millis_fn)(void);
@@ -19,10 +19,18 @@ typedef enum {
 } dynsched_prempt_espx_state_t;
 
 typedef struct {
-    void *register_buffer;  // offset 0
-    void *stack_buffer;     // offset 4
-    uint32_t stack_size;    // offset 8
+    uint32_t registers[16];  // the registers
+    uint32_t pc;             // the program counter
+    uint32_t sp;             // the stack pointer
+    uint32_t *stack;         // the stack
+    uint32_t stack_size;     // the stack size
 } dynsched_prempt_espx_state_buffer_t;
+
+typedef struct {
+    uint32_t stack_size;  // the size of the stack
+    bool use_epc_reg;     // if true, that means we should use the epc register to restore the program counter
+                          // the epc register is used when we are returning from an exception
+} dynsched_prempt_espx_state_save_options_t;
 
 typedef struct {
     // configuration
@@ -51,7 +59,7 @@ void dynsched_prempt_espx_unlock(void *ctx);
 
 /**------------------------------------------------------------------------
  *                           ASSEMBLY INTERFACE
- * Because we are doing something so low-level, particularly dealing with
+ * Because we are doing something so low-level, specifically dealing with
  * context switching, we need to write some assembly code to handle the
  * saving and restoring of the context. These functions are defined purely
  * in assembly. Find them in prempt_espx.S
@@ -61,7 +69,7 @@ void dynsched_prempt_espx_unlock(void *ctx);
 extern "C" {
 #endif
 
-void __asm_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
+void __asm_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t options);
 void __asm_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
 
 #ifdef __cplusplus
@@ -69,7 +77,7 @@ void __asm_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_
 #endif
 
 // use these functions to call the assembly functions, which is way nicer for debugging
-inline void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
+inline void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t options);
 inline void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
 
 #define DYNSCHED_PREMPT_ESPX                     \

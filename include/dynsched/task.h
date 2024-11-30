@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "dynsched/mem.h"
+#include "dynsched/mem_manager.h"
 
 /**------------------------------------------------------------------------
  *                           TASK STRUCTURES

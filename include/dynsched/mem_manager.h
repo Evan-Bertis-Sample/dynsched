@@ -1,5 +1,5 @@
-#ifndef __MEM_H__
-#define __MEM_H__
+#ifndef __MEM_MANAGER_H__
+#define __MEM_MANAGER_H__
 #include <stddef.h>
 #include <stdint.h>
 
@@ -34,9 +34,9 @@ void dynsched_mem_free(dynsched_mem_manager_t *manager, void *ptr);
 #ifndef DYNSCHED_DEFAULT_MEM_UNIMPLEMENTED
 #include <memory.h>
 
-void dynsched_default_mem_init(void *ctx) { return; }
-void *dynsched_default_mem_alloc(void *ctx, dynsched_mem_size_t size) { return malloc(size); }
-void dynsched_default_mem_free(void *ctx, void *ptr) { free(ptr); }
+void dynsched_default_mem_init(void *ctx);
+void *dynsched_default_mem_alloc(void *ctx, dynsched_mem_size_t size);
+void dynsched_default_mem_free(void *ctx, void *ptr);
 
 #define DYNSCHED_DEFAULT_MEM                 \
     (dynsched_mem_manager_t) {               \
@@ -50,4 +50,4 @@ void dynsched_default_mem_free(void *ctx, void *ptr) { free(ptr); }
 
 #endif
 
-#endif  // __MEM_H__
+#endif  // __MEM_MANAGER_H__

@@ -2,6 +2,13 @@
     "files.associations": {
         "*.compute": "hlsl",
         "esp_partition.h": "c",
-        "mem.h": "c"
+        "mem.h": "c",
+        "freertos.h": "c",
+        "xtensa_rtos.h": "c",
+        "xtensa_context.h": "c",
+        "task.h": "c",
+        "portmacro.h": "c",
+        "queue.h": "c",
+        "mpu_wrappers.h": "c"
     }
 }

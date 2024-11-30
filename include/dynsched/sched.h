@@ -1,7 +1,7 @@
 #ifndef __SCHED_H__
 #define __SCHED_H__
 
-#include "dynsched/mem.h"
+#include "dynsched/mem_manager.h"
 #include "dynsched/task.h"
 
 /**------------------------------------------------------------------------

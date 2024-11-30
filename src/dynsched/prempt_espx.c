@@ -9,7 +9,9 @@
 #include "dynsched/espx/prempt_espx.h"
 
 #include <freertos/FreeRTOS.h>
+#include <freertos/mpu_wrappers.h>
 #include <freertos/task.h>
+#include <freertos/xtensa_rtos.h>
 
 #define DYNSCHED_PRINT(fmt, ...) printf(fmt, ##__VA_ARGS__)
 
@@ -17,14 +19,20 @@
  *                           ESP32 PREMPTION HELPERS
  *------------------------------------------------------------------------**/
 
-void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf) {
+void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t options) {
     DYNSCHED_PRINT("Saving ESP32 task context\n");
-    __asm_espx_save_task_context(state_buf);
+    // disable interrupts, so we can save the context
+    portDISABLE_INTERRUPTS();
+    __asm_espx_save_task_context(state_buf, options);
+    portENABLE_INTERRUPTS();
 }
 
 void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf) {
     DYNSCHED_PRINT("Restoring ESP32 task context\n");
+    // disable interrupts, so we can restore the context
+    portDISABLE_INTERRUPTS();
     __asm_espx_restore_task_context(state_buf);
+    portENABLE_INTERRUPTS();
 }
 
 bool espx_timer_isr_handler(void *args) {
@@ -39,7 +47,11 @@ bool espx_timer_isr_handler(void *args) {
 
     if (prempted) {
         // we should store the current task's context, so we can restore it later
-        dynsched_prempt_espx_save_task_context(&prempt_ctx->prempt_task_data);
+        dynsched_prempt_espx_state_save_options_t options = {
+            .stack_size = prempt_ctx->last_prempt->stack_size,  // save using the old stack size
+            .use_epc_reg = true                                 // we are returning from an exception, so we should use the epc register
+        };
+        dynsched_prempt_espx_save_task_context(&prempt_ctx->prempt_task_data, options);
         prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_IDLE;
     }
 
@@ -133,7 +145,12 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *prempt_args)
     prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_RUNNING_PREMPT;
 
     // now we should save the current world's state, so we can restore it later
-    dynsched_prempt_espx_save_task_context(&prempt_ctx->before_prempt_data);
+    dynsched_prempt_espx_state_save_options_t options = {
+        .stack_size = prempt_args->stack_size,
+        .use_epc_reg = false  // we are not returning from an exception, so we should not use the epc register
+    };
+
+    dynsched_prempt_espx_save_task_context(&prempt_ctx->before_prempt_data, options);
 
     // now we will run the function
     prempt_args->prempt_func(prempt_args->task_data);

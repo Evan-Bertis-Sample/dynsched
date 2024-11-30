@@ -1,23 +1,22 @@
 #ifndef __PREMPT_H__
 #define __PREMPT_H__
 
-#include "dynsched/mem.h"
+#include "dynsched/mem_manager.h"
 
 typedef struct {
     void *task_data;  // used to call the task's function
     uint32_t prempt_time;
+    uint32_t stack_size;  // the size of the stack to use for the task
     void (*prempt_func)(void *);
     void (*after_prempt_func)(void *);
 } dynsched_prempt_args_t;
-
-typedef struct dynsched_prempt_interface dynsched_prempt_interface_t;
 
 typedef struct dynsched_prempt_interface {
     void *platform_ctx;
 
     // constructor/destructor
-    dynsched_prempt_interface_t *(*create)(dynsched_mem_manager_t *mem_manager, void *config);
-    void (*destroy)(dynsched_prempt_interface_t *prempt);
+    struct dynsched_prempt_interface *(*create)(dynsched_mem_manager_t *mem_manager, void *config);
+    void (*destroy)(struct dynsched_prempt_interface *prempt);
 
     // prempt functions
     void (*init)(void *ctx);

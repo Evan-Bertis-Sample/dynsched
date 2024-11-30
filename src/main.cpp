@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #include "dynsched/espx/prempt_espx.h"
-#include "dynsched/mem.h"
+#include "dynsched/mem_manager.h"
 #include "dynsched/prempt.h"
 
 uint32_t millis_wrapper();
@@ -30,8 +30,8 @@ void setup() {
         DYNSCHED_PREMPT_ESPX,
         &prempt_config);
 
-    error_times = (int32_t *)malloc(amount_of_prempts * sizeof(int32_t));
-    // error_times = (int32_t *)dynsched_mem_alloc(&mem_manager, (dynsched_mem_size_t)(amount_of_prempts * sizeof(int32_t)));
+    // error_times = (int32_t *)malloc(amount_of_prempts * sizeof(int32_t));
+    error_times = (int32_t *)dynsched_mem_alloc(&mem_manager, (dynsched_mem_size_t)(amount_of_prempts * sizeof(int32_t)));
 
     dynsched_prempt_init(prempt_interface);
     dynsched_prempt_start(prempt_interface);
