@@ -49,16 +49,16 @@ void dynsched_prempt_espx_unlock(void *ctx);
 extern "C" {
 #endif
 
-void __asm_espx_save_task_context(dynsched_prempt_interface_t *prempt);
-void __asm_espx_restore_task_context(dynsched_prempt_interface_t *prempt);
+void __asm_espx_save_task_context(dynsched_prempt_args_t * prempt_args);
+void __asm_espx_restore_task_context(dynsched_prempt_args_t * prempt_args);
 
 #ifdef __cplusplus
 }
 #endif
 
 // use these functions to call the assembly functions, which is way nicer for debugging
-void dynsched_prempt_espx_save_task_context(dynsched_prempt_interface_t *prempt);
-void dynsched_prempt_espx_restore_task_context(dynsched_prempt_interface_t *prempt);
+void dynsched_prempt_espx_save_task_context(dynsched_prempt_args_t * prempt_args);
+void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t * prempt_args);
 
 
 
