@@ -6,8 +6,8 @@
  *
  *------------------------------------------------------------------------**/
 
-#include <dynsched/dynsched.h>
 #include <driver/timer.h>
+#include "dynsched/dynsched.h"
 
 #define DYNSCHED_PRINT(fmt, ...) printf(fmt, ##__VA_ARGS__)
 

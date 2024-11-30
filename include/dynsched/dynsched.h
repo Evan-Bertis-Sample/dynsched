@@ -1,10 +1,10 @@
 #ifndef __DYNSCHED_H__
 #define __DYNSCHED_H__
 
-#include <dynsched/pqueue.h>
-#include <dynsched/sched.h>
-#include <dynsched/task.h>
-#include <dynsched/prempt.h>
+#include "dynsched/pqueue.h"
+#include "dynsched/sched.h"
+#include "dynsched/task.h"
+#include "dynsched/prempt.h"
 
 /**------------------------------------------------------------------------
  *                           PRIORITY SCHEDULER STRUCTURES

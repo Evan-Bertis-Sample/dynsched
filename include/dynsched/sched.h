@@ -1,8 +1,8 @@
 #ifndef __SCHED_H__
 #define __SCHED_H__
 
-#include <dynsched/mem.h>
-#include <dynsched/task.h>
+#include "dynsched/mem.h"
+#include "dynsched/task.h"
 
 /**------------------------------------------------------------------------
  *                           SCHEDULER INTERFACE

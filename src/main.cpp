@@ -1,7 +1,8 @@
 #include <Arduino.h>
-#include <dynsched/mem.h>
-#include <dynsched/espx/prempt_espx.h>
-#include <dynsched/prempt.h>
+
+#include "dynsched/espx/prempt_espx.h"
+#include "dynsched/mem.h"
+#include "dynsched/prempt.h"
 
 uint32_t millis_wrapper();
 void test_task(void *data);
@@ -49,7 +50,6 @@ void loop() {
     }
 
     if (prempt_counter >= amount_of_prempts) {
-
         // read the error times
         Serial.println("Error times:");
         for (uint32_t i = 0; i < amount_of_prempts; i++) {
@@ -97,8 +97,7 @@ void loop() {
         Serial.println(largest_error);
         dynsched_prempt_stop(prempt_interface);
         dynsched_prempt_destroy(prempt_interface);
-        while (1)
-            ;
+        while (1);
     }
 }
 

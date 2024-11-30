@@ -6,7 +6,8 @@
  *
  *------------------------------------------------------------------------**/
 
-#include <dynsched/espx/prempt_espx.h>
+#include "dynsched/espx/prempt_espx.h"
+
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
@@ -126,7 +127,6 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *prempt_args)
     timer_set_alarm(prempt_ctx->platform_config->group_num,
                     prempt_ctx->platform_config->timer_num,
                     TIMER_ALARM_EN);
-
 
     prempt_ctx->last_prempt = prempt_args;
     prempt_ctx->last_prempt_time = prempt_ctx->platform_config->millis_fn();

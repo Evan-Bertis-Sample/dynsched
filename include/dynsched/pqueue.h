@@ -4,7 +4,7 @@
 // priority queue, implemented using a linked list
 // the list is sorted in ascending order of priority
 
-#include <dynsched/mem.h>
+#include "dynsched/mem.h"
 
 /**------------------------------------------------------------------------
  *                           PRIORITY QUEUE STRUCTURES

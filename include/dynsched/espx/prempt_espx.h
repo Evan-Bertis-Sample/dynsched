@@ -2,7 +2,7 @@
 #define __PREMPT_ESPX_H__
 
 #include <driver/timer.h>
-#include <dynsched/prempt.h>
+#include "dynsched/prempt.h"
 
 typedef struct {
     // something something...

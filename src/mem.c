@@ -6,7 +6,7 @@
  *
  *------------------------------------------------------------------------**/
 
-#include <dynsched/mem.h>
+#include "dynsched/mem.h"
 
 void dynsched_mem_init(dynsched_mem_manager_t *manager, void *ctx) { manager->init(ctx); }
 

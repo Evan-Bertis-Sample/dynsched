@@ -1,7 +1,7 @@
 #ifndef __PREMPT_H__
 #define __PREMPT_H__
 
-#include <dynsched/mem.h>
+#include "dynsched/mem.h"
 
 typedef struct {
     void *task_data;  // used to call the task's function
