@@ -20,7 +20,7 @@
     .global __asm_espx_save_task_context
 __asm_espx_save_task_context:
     /* Load the address of register_buffer from prempt_args */
-    l32i   a3, a2, 4          /* a3 = prempt_args->register_buffer */
+    l32i   a3, a2, 0          /* a3 = prempt_args->register_buffer */
     mov    a5, a3             /* a5 = register_buffer (temporary base pointer) */
 
     /* Save general-purpose registers to register_buffer */
@@ -42,7 +42,7 @@ __asm_espx_save_task_context:
     s32i   a15, a5, 60        /* Save a15 */
 
     /* Save the current stack pointer to stack_buffer */
-    l32i   a4, a2, 8          /* a4 = prempt_args->stack_buffer */
+    l32i   a4, a2, 4          /* a4 = prempt_args->stack_buffer */
     s32i   a1, a4, 0          /* Save stack pointer (a1) */
 
     /* Return from the function */
@@ -58,7 +58,7 @@ __asm_espx_save_task_context:
     .global __asm_espx_restore_task_context
 __asm_espx_restore_task_context:
     /* Load the address of register_buffer from prempt_args */
-    l32i   a3, a2, 4          /* a3 = prempt_args->register_buffer */
+    l32i   a3, a2, 0          /* a3 = prempt_args->register_buffer */
 
     /* Temporarily store the saved return address (a0) */
     l32i   a5, a3, 0          /* a5 = saved a0 (return address) */

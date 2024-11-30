@@ -1,20 +1,28 @@
 #ifndef __PREMPT_ESPX_H__
 #define __PREMPT_ESPX_H__
 
-#include <dynsched/prempt.h>
 #include <driver/timer.h>
+#include <dynsched/prempt.h>
 
 typedef struct {
     // something something...
     timer_group_t group_num;
     timer_idx_t timer_num;
+    uint32_t (*millis_fn)(void);
 } dynsched_prempt_espx_config_t;
 
 typedef enum {
-    DYNSCHED_PREMPT_ESPX_STATE_IDLE,
-    DYNSCHED_PREMPT_ESPX_STATE_RUNNING,
-    DYNSCHED_PREMPT_ESPX_STATE_STOPPED,
+    DYNSCHED_PREMPT_ESPX_STATE_UNINITIALIZED,
+    DYNSCHED_PREMPT_ESPX_STATE_IDLE,            // we are not prempting a task, and the hardware timer is not running
+    DYNSCHED_PREMPT_ESPX_STATE_RUNNING_PREMPT,  // we are currently prempting a task, meaning the hardware timer is running
+    DYNSCHED_PREMPT_ESPX_STATE_STOPPED,         // we have stopped the hardware timer, but we are will not prempt a task
 } dynsched_prempt_espx_state_t;
+
+typedef struct {
+    void *register_buffer;  // offset 0
+    void *stack_buffer;     // offset 4
+    uint32_t stack_size;    // offset 8
+} dynsched_prempt_espx_context_data_t;
 
 typedef struct {
     // configuration
@@ -22,8 +30,12 @@ typedef struct {
     dynsched_mem_manager_t *mem_manager;
 
     // state variables
+    dynsched_prempt_espx_state_t before_prempt_data;  // used to restore the data before the task was prempted
+    dynsched_prempt_espx_state_t prempt_task_data;    // used to restore data from the currently running task
+
     dynsched_prempt_espx_state_t state;
-    uint32_t last_prempt_time; // the last time we prempted a task
+    dynsched_prempt_args_t *last_prempt;
+    uint32_t last_prempt_time;  // the last time we prempted a task
 
 } dynsched_prempt_espx_context_t;
 
@@ -41,7 +53,7 @@ void dynsched_prempt_espx_unlock(void *ctx);
  *                           ASSEMBLY INTERFACE
  * Because we are doing something so low-level, particularly dealing with
  * context switching, we need to write some assembly code to handle the
- * saving and restoring of the context. These functions are defined purely 
+ * saving and restoring of the context. These functions are defined purely
  * in assembly. Find them in prempt_espx.S
  *------------------------------------------------------------------------**/
 
@@ -49,17 +61,16 @@ void dynsched_prempt_espx_unlock(void *ctx);
 extern "C" {
 #endif
 
-void __asm_espx_save_task_context(dynsched_prempt_args_t * prempt_args);
-void __asm_espx_restore_task_context(dynsched_prempt_args_t * prempt_args);
+void __asm_espx_save_task_context(dynsched_prempt_espx_context_data_t *data);
+void __asm_espx_restore_task_context(dynsched_prempt_espx_context_data_t *data);
 
 #ifdef __cplusplus
 }
 #endif
 
 // use these functions to call the assembly functions, which is way nicer for debugging
-void dynsched_prempt_espx_save_task_context(dynsched_prempt_args_t * prempt_args);
-void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t * prempt_args);
-
+inline void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_context_data_t *data);
+inline void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t *data);
 
 dynsched_prempt_interface_t dynsched_prempt_espx = {
     .platform_ctx = NULL,

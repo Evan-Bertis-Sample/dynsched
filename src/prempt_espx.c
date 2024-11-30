@@ -16,19 +16,34 @@
  *                           ESP32 PREMPTION HELPERS
  *------------------------------------------------------------------------**/
 
-void dynsched_prempt_espx_save_task_context(dynsched_prempt_args_t *prempt_args) {
+void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_context_data_t *data) {
     DYNSCHED_PRINT("Saving ESP32 task context\n");
-    __asm_espx_save_task_context(prempt_args);
+    __asm_espx_save_task_context(data);
 }
 
-void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t *prempt_args) {
+void dynsched_prempt_espx_restore_task_context(dynsched_prempt_args_t *data) {
     DYNSCHED_PRINT("Restoring ESP32 task context\n");
-    __asm_espx_restore_task_context(prempt_args);
+    __asm_espx_restore_task_context(data);
 }
 
 bool espx_timer_isr_handler(void *args) {
+    // we should have a seperate stack for the ISR
+    // this isr is called after a hardware timer has expired
+    // for our purposes, that means a task has been prempted
     DYNSCHED_PRINT("Handling ESP32 timer ISR\n");
     dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)args;
+    // this is called after a task that was prempted has finished, either by timeout or the task finishing
+    uint32_t current_time = prempt_ctx->platform_config->millis_fn();
+    bool prempted = (current_time - prempt_ctx->last_prempt_time) >= prempt_ctx->last_prempt->prempt_time;
+
+    if (prempted) {
+        // we should store the current task's context, so we can restore it later
+        dynsched_prempt_espx_save_task_context(&prempt_ctx->prempt_task_data);
+        prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_IDLE;
+    }
+
+    // now we should restore the old context, which was saved before the task was prempted
+    dynsched_prempt_espx_restore_task_context(prempt_ctx->before_prempt_data);
 }
 
 /**------------------------------------------------------------------------
@@ -94,6 +109,37 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *args) {
     // this function should only ever be called from the scheduler, when we
     // are not in the middle of a task
     // if we are in the middle of a task, something has seriously gone wrong
+    if (prempt_ctx->state != DYNSCHED_PREMPT_ESPX_STATE_IDLE) {
+        DYNSCHED_PRINT("ERROR: Attempting to prempt a task while in the middle of another task\n");
+        return;
+    }
+
+    // set up the hardware timer to prempt the task
+    timer_set_counter_value(prempt_ctx->platform_config->group_num,
+                            prempt_ctx->platform_config->timer_num,
+                            0);
+
+    timer_set_alarm_value(prempt_ctx->platform_config->group_num,
+                          prempt_ctx->platform_config->timer_num,
+                          args->prempt_time);
+
+    timer_set_alarm(prempt_ctx->platform_config->group_num,
+                    prempt_ctx->platform_config->timer_num,
+                    TIMER_ALARM_EN);
+
+    timer_set_counter_enable_in_isr(prempt_ctx->platform_config->group_num,
+                                    prempt_ctx->platform_config->timer_num,
+                                    TIMER_START);
+
+    prempt_ctx->last_prempt = args;
+    prempt_ctx->last_prempt_time = prempt_ctx->platform_config->millis_fn();
+    prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_RUNNING_PREMPT;
+
+    // now we should save the current world's state, so we can restore it later
+    dynsched_prempt_espx_save_task_context(&prempt_ctx->before_prempt_data);
+
+    // now we will run the function
+    args->prempt_func(args->task_data);
 }
 
 void dynsched_prempt_espx_lock(void *ctx) {

@@ -2,14 +2,11 @@
 #define __PREMPT_H__
 
 #include <dynsched/mem.h>
-
 typedef struct {
-    uint32_t prempt_time;  // offset 0
-
     // where do we store stuff for the premption?
-    void *register_buffer;  // offset 4
-    void *stack_buffer;     // offset 8
-
+    void *context_switch_data;
+    void *task_data;  // used to call the task's function
+    uint32_t prempt_time;
     void (*prempt_func)(void *);
     void (*after_prempt_func)(void *);
 } dynsched_prempt_args_t;
