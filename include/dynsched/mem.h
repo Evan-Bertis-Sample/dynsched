@@ -20,7 +20,7 @@ typedef struct {
  *                           MEMORY MANAGER FUNCTIONS
  *------------------------------------------------------------------------**/
 
-void dynsched_mem_init(dynsched_mem_manager_t *manager);
+void dynsched_mem_init(dynsched_mem_manager_t *manager, void *ctx);
 void *dynsched_mem_alloc(dynsched_mem_manager_t *manager, dynsched_mem_size_t size);
 void dynsched_mem_free(dynsched_mem_manager_t *manager, void *ptr);
 
@@ -37,8 +37,6 @@ void dynsched_mem_free(dynsched_mem_manager_t *manager, void *ptr);
 void dynsched_default_mem_init(void *ctx) { return; }
 void *dynsched_default_mem_alloc(void *ctx, dynsched_mem_size_t size) { return malloc(size); }
 void dynsched_default_mem_free(void *ctx, void *ptr) { free(ptr); }
-
-dynsched_mem_manager_t dynsched_default_mem_manager =
 
 #define DYNSCHED_DEFAULT_MEM                 \
     (dynsched_mem_manager_t) {               \

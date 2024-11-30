@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.compute": "hlsl",
-        "esp_partition.h": "c"
+        "esp_partition.h": "c",
+        "mem.h": "c"
     }
 }

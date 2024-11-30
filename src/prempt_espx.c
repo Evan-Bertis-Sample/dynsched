@@ -58,7 +58,7 @@ dynsched_prempt_interface_t *dynsched_prempt_espx_create(dynsched_mem_manager_t 
     ctx->platform_config = config;
 
     // copy over the template defined in dynsched_prempt_espx.h
-    memccpy(prempt, &dynsched_prempt_espx, sizeof(dynsched_prempt_interface_t), sizeof(dynsched_prempt_interface_t));
+    *prempt = DYNSCHED_PREMPT_ESPX;
     prempt->platform_ctx = ctx;
     return prempt;
 }
