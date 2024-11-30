@@ -5,6 +5,10 @@
 
 #include "dynsched/prempt.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     timer_group_t group_num;
     timer_idx_t timer_num;
@@ -92,5 +96,9 @@ inline void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state
         .lock = dynsched_prempt_espx_lock,       \
         .unlock = dynsched_prempt_espx_unlock,   \
     }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __PREMPT_ESPX_H__

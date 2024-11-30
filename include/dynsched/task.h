@@ -5,6 +5,10 @@
 
 #include "dynsched/mem_manager.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**------------------------------------------------------------------------
  *                           TASK STRUCTURES
  *------------------------------------------------------------------------**/
@@ -48,5 +52,9 @@ dynsched_task_t *dynsched_task_create(dynsched_mem_manager_t *mem_manager, dynsc
 /// @param mem_manager  The memory manager, used to free memory for the task
 /// @param task  The task descriptor
 void dynsched_task_destroy(dynsched_mem_manager_t *mem_manager, dynsched_task_t *task);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __TASK_H__

@@ -6,6 +6,10 @@
 
 #include "dynsched/mem_manager.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**------------------------------------------------------------------------
  *                           PRIORITY QUEUE STRUCTURES
  *------------------------------------------------------------------------**/
@@ -55,5 +59,9 @@ void *dynsched_pqueue_end(dynsched_pqueue_t *queue);
 void dynsched_pqueue_insert(dynsched_pqueue_t *queue, dynsched_pqueue_node_t *node);
 void dynsched_pqueue_remove(dynsched_pqueue_t *queue, dynsched_pqueue_node_t *node);
 void dynsched_pqueue_swap(dynsched_pqueue_node_t *node1, dynsched_pqueue_node_t *node2);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __PQUEUE_H__

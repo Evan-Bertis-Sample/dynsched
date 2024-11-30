@@ -3,6 +3,10 @@
 
 #include "dynsched/mem_manager.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
     void *task_data;  // used to call the task's function
     uint32_t prempt_time;
@@ -42,5 +46,9 @@ void dynsched_prempt_stop(dynsched_prempt_interface_t *prempt) { prempt->stop(pr
 void dynsched_prempt_prempt(dynsched_prempt_interface_t *prempt, dynsched_prempt_args_t *args) { prempt->prempt(prempt->platform_ctx, args); }
 void dynsched_prempt_lock(dynsched_prempt_interface_t *prempt) { prempt->lock(prempt->platform_ctx); }
 void dynsched_prempt_unlock(dynsched_prempt_interface_t *prempt) { prempt->unlock(prempt->platform_ctx); }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __PREMPT_H__

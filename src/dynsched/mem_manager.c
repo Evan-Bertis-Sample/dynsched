@@ -1,5 +1,5 @@
 /**------------------------------------------------------------------------
- *                             mem.c
+ *                             memory_manager.c
  *
  *  Memory manager implementation.
  *

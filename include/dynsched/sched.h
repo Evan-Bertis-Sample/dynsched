@@ -4,6 +4,10 @@
 #include "dynsched/mem_manager.h"
 #include "dynsched/task.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**------------------------------------------------------------------------
  *                           SCHEDULER INTERFACE
  *------------------------------------------------------------------------**/
@@ -60,5 +64,9 @@ void dynsched_isched_iterate(dynsched_interface_t *sched, void (*task_func)(dyns
 }
 
 void dynsched_isched_destroy(dynsched_interface_t *sched) { sched->destroy(sched); }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __SCHED_H__

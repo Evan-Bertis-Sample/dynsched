@@ -1,7 +1,12 @@
 #ifndef __MEM_MANAGER_H__
 #define __MEM_MANAGER_H__
+
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**------------------------------------------------------------------------
  *                           MEMORY MANAGER STRUCTURES
@@ -46,8 +51,13 @@ void dynsched_default_mem_free(void *ctx, void *ptr);
         .free = dynsched_default_mem_free    \
     }
 
+#endif
+
 #define DYNSCHED_MALLOC(manager, type) (type *)dynsched_mem_alloc(manager, sizeof(type))
 
+#ifdef __cplusplus
+}
 #endif
+
 
 #endif  // __MEM_MANAGER_H__
