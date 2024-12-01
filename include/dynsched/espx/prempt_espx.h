@@ -87,7 +87,7 @@ inline void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state
 
 dynsched_prempt_espx_state_buffer_t *dynsched_prempt_espx_state_buffer_create(dynsched_mem_manager_t *mem_manager, uint32_t stack_size);
 void dynsched_prempt_espx_state_buffer_resize(dynsched_mem_manager_t *mem_manager, dynsched_prempt_espx_state_buffer_t *state_buf, uint32_t stack_size);
-void dynsched_prempt_espx_state_buffer_destroy(dynsched_mem_manager_t *mem_manager, dynsched_prempt_espx_state_buffer_t *state_buf);
+void dynsched_prempt_espx_state_buffer_destroy(dynsched_mem_manager_t *mem_manager, dynsched_prempt_espx_state_buffer_t *state_buf);    
 
 
 #define DYNSCHED_PREMPT_ESPX                     \

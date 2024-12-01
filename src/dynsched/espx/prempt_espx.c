@@ -22,17 +22,22 @@
 void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t options) {
     DYNSCHED_PRINT("Saving ESP32 task context\n");
     // disable interrupts, so we can save the context
-    // portDISABLE_INTERRUPTS();
+    portDISABLE_INTERRUPTS();
+    // for now, just to check for errors, write some random data to the stack
+    // memset(state_buf->stack, 0x55, state_buf->stack_size);
     __asm_espx_save_task_context(state_buf, &options);
-    // portENABLE_INTERRUPTS();
+
+    DYNSCHED_PRINT("Saved ESP32 task context\n");
+    DYNSCHED_PRINT("Stack size: %d\n", state_buf->stack_size);
+    portENABLE_INTERRUPTS();
 }
 
 void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf) {
     DYNSCHED_PRINT("Restoring ESP32 task context\n");
     // disable interrupts, so we can restore the context
-    // portDISABLE_INTERRUPTS();
+    portDISABLE_INTERRUPTS();
     __asm_espx_restore_task_context(state_buf);
-    // portENABLE_INTERRUPTS();
+    portENABLE_INTERRUPTS();
 }
 
 bool espx_timer_isr_handler(void *args) {
@@ -184,7 +189,7 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *prempt_args)
         .use_epc_reg = false  // we are not returning from an exception, so we should not use the epc register
     };
 
-    dynsched_prempt_espx_save_task_context(&prempt_ctx->before_prempt_data, options);
+    dynsched_prempt_espx_save_task_context(prempt_ctx->before_prempt_data, options);
 
     // now we will run the function
     prempt_args->prempt_func(prempt_args->task_data);
@@ -198,6 +203,7 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *prempt_args)
         // therefore, we should stop the timer
         DYNSCHED_PRINT("Preemptive Task ran to completion!");
         timer_pause(prempt_ctx->platform_config->group_num, prempt_ctx->platform_config->timer_num);
+        prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_IDLE;
     }
 }
 

@@ -21,6 +21,7 @@ uint32_t amount_of_prempts = 100;
 
 int32_t *error_times;
 
+
 void setup() {
 
     Serial.begin(9600);
