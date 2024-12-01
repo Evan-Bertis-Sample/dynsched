@@ -14,8 +14,16 @@ fi
 # Get the backtrace string
 BACKTRACE="$1"
 
-# Extract addresses from the backtrace
-ADDRESSES=$(echo "$BACKTRACE" | sed -e 's/Backtrace: //' -e 's/0x[0-9a-f]*:\(0x[0-9a-f]*\)/\1/g')
+# if this is a file, read the backtrace from the file
+# otherwise, use the provided backtrace string
+
+if [ -f "$BACKTRACE" ]; then
+    BACKTRACE=$(cat "$BACKTRACE")
+fi
+
+# Extract addresses from the backtrace, by remove the "Backtrace: " prefix
+# then split the string by spaces
+ADDRESSES=$(echo "$BACKTRACE" | sed 's/Backtrace: //' | tr ' ' '\n')
 
 # Check if addresses were extracted
 if [ -z "$ADDRESSES" ]; then
@@ -40,16 +48,15 @@ if [ ! -f "$ELF_FILE" ]; then
     exit 1
 fi
 
+echo "Environment: $ENVIRONMENT"
+echo "Decoding backtrace using $ELF_FILE..."
+echo "Addresses: $ADDRESSES"
+
 # Set the path to the xtensa-esp32-elf-addr2line utility
 # Use PlatformIO's command to find the toolchain path
 ADDR2LINE="xtensa-esp32-elf-addr2line"
 
-# Check if the addr2line utility exists
-if [ ! -x "$ADDR2LINE" ]; then
-    echo "Error: xtensa-esp32-elf-addr2line not found at $ADDR2LINE"
-    echo "Please ensure the toolchain is installed."
-    exit 1
-fi
+echo ""
 
 # Decode the addresses
 echo "Decoding backtrace addresses..."
