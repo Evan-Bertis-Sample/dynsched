@@ -39,12 +39,12 @@
      *------------------------------------------------------------------------*/
     .global __asm_espx_save_task_context
 __asm_espx_save_task_context:
-    /* Send debug message */
-    movi   a2, debug_msg_start
-    call0  printf
+    // /* Send debug message */
+    // movi   a2, debug_msg_start
+    // call0  printf
 
     /* Disable interrupts and save previous PS */
-    ; rsil   a4, 15                /* Disable interrupts, save PS to a4 */
+    // rsil   a4, 15                /* Disable interrupts, save PS to a4 */
 
     /* Save registers that will be modified */
     addi   a1, a1, -16           /* Adjust stack pointer to save 4 registers */
@@ -130,8 +130,8 @@ copy_stack_done:
     addi   a1, a1, 16            /* Adjust stack pointer back */
 
     /* Re-enable interrupts by restoring PS */
-    ; wsr    a4, PS                /* Restore PS from a4 */
-    ; rsync                        /* Ensure PS is updated before proceeding */
+    // wsr    a4, PS                /* Restore PS from a4 */
+    // rsync                        /* Ensure PS is updated before proceeding */
 
     /* Return from the function */
     ret
@@ -147,7 +147,7 @@ copy_stack_done:
     .global __asm_espx_restore_task_context
 __asm_espx_restore_task_context:
     /* Disable interrupts and save previous PS */
-    ; rsil   a4, 15                /* Disable interrupts, save PS to a4 */
+    // rsil   a4, 15                /* Disable interrupts, save PS to a4 */
 
     /* Save registers that will be modified */
     addi   a1, a1, -12           /* Adjust stack pointer to save 3 registers */
@@ -211,8 +211,8 @@ restore_stack_done:
     addi   a1, a1, 12            /* Adjust stack pointer back */
 
     /* Re-enable interrupts by restoring PS */
-    ; wsr    a4, PS                /* Restore PS from a4 */
-    ; rsync                        /* Ensure PS is updated before proceeding */
+    // wsr    a4, PS                /* Restore PS from a4 */
+    // rsync                        /* Ensure PS is updated before proceeding */
 
     /* Jump to the restored program counter */
     jx     a6                    /* Jump to address in a6 */
