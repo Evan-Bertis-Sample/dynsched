@@ -73,7 +73,7 @@ void dynsched_prempt_espx_unlock(void *ctx);
 extern "C" {
 #endif
 
-void __asm_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t options);
+void __asm_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t *options);
 void __asm_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
 
 #ifdef __cplusplus

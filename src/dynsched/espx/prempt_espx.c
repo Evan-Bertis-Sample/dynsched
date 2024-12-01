@@ -23,7 +23,7 @@ void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t 
     DYNSCHED_PRINT("Saving ESP32 task context\n");
     // disable interrupts, so we can save the context
     portDISABLE_INTERRUPTS();
-    __asm_espx_save_task_context(state_buf, options);
+    __asm_espx_save_task_context(state_buf, &options);
     portENABLE_INTERRUPTS();
 }
 
@@ -154,6 +154,17 @@ void dynsched_prempt_espx_prempt(void *ctx, dynsched_prempt_args_t *prempt_args)
 
     // now we will run the function
     prempt_args->prempt_func(prempt_args->task_data);
+
+    // if we return in time, then we should stop the timer
+    uint32_t time = prempt_ctx->platform_config->millis_fn();
+    int32_t time_elapsed = (int32_t)time - (int32_t)prempt_ctx->last_prempt_time;
+
+    if (time_elapsed < (int32_t)prempt_ctx->last_prempt->prempt_time) {
+        // we know we actually didn't need to preempt this
+        // therefore, we should stop the timer
+        DYNSCHED_PRINT("Preemptive Task ran to completion!");
+        timer_pause(prempt_ctx->platform_config->group_num, prempt_ctx->platform_config->timer_num);
+    }
 }
 
 void dynsched_prempt_espx_lock(void *ctx) {

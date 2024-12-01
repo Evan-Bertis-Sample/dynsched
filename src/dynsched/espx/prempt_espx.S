@@ -3,88 +3,212 @@
  *
  * Assembly functions for saving and restoring task context in Xtensa architecture.
  * These functions handle low-level context switching by saving and restoring
- * general-purpose registers and the stack pointer.
+ * general-purpose registers, program counter, stack pointer, and stack contents.
+ * Interrupts are disabled during these operations to prevent interference.
  *
  *------------------------------------------------------------------------*/
 
     .section .text
     .align 4
 
+    /* Offsets within dynsched_prempt_espx_state_buffer_t */
+    /* Assuming standard alignment, the offsets are as follows:
+     * registers[0..15]: offsets 0 to 60 (0x00 to 0x3C)
+     * pc: offset 64 (0x40)
+     * sp: offset 68 (0x44)
+     * stack: offset 72 (0x48)
+     * stack_size: offset 76 (0x4C)
+     */
+
+    /* Offsets within dynsched_prempt_espx_state_save_options_t */
+    /* stack_size: offset 0
+     * use_epc_reg: offset 4
+     */
+
     /*------------------------------------------------------------------------
      * Function: __asm_espx_save_task_context
-     * Saves the current task context into the buffers provided in prempt_args.
+     * Saves the current task context into the state buffer provided.
+     * Interrupts are disabled during this operation.
      *
      * Arguments:
-     *   a2 - Pointer to dynsched_prempt_args_t structure
+     *   a2 - Pointer to dynsched_prempt_espx_state_buffer_t (state_buf)
+     *   a3 - Pointer to dynsched_prempt_espx_state_save_options_t (options)
      *------------------------------------------------------------------------*/
     .global __asm_espx_save_task_context
 __asm_espx_save_task_context:
-    /* Load the address of register_buffer from prempt_args */
-    l32i   a3, a2, 0          /* a3 = prempt_args->register_buffer */
-    mov    a5, a3             /* a5 = register_buffer (temporary base pointer) */
+    /* Disable interrupts and save previous PS */
+    rsil   a4, 15                /* Disable interrupts, save PS to a4 */
 
-    /* Save general-purpose registers to register_buffer */
-    s32i   a0, a5, 0          /* Save a0 */
-    s32i   a1, a5, 4          /* Save a1 (stack pointer) */
-    s32i   a2, a5, 8          /* Save a2 */
-    s32i   a3, a5, 12         /* Save a3 */
-    s32i   a4, a5, 16         /* Save a4 */
-    s32i   a5, a5, 20         /* Save a5 */
-    s32i   a6, a5, 24         /* Save a6 */
-    s32i   a7, a5, 28         /* Save a7 */
-    s32i   a8, a5, 32         /* Save a8 */
-    s32i   a9, a5, 36         /* Save a9 */
-    s32i   a10, a5, 40        /* Save a10 */
-    s32i   a11, a5, 44        /* Save a11 */
-    s32i   a12, a5, 48        /* Save a12 */
-    s32i   a13, a5, 52        /* Save a13 */
-    s32i   a14, a5, 56        /* Save a14 */
-    s32i   a15, a5, 60        /* Save a15 */
+    /* Save registers that will be modified */
+    addi   a1, a1, -16           /* Adjust stack pointer to save 4 registers */
+    s32i   a5, a1, 0             /* Save a5 */
+    s32i   a6, a1, 4             /* Save a6 */
+    s32i   a7, a1, 8             /* Save a7 */
+    s32i   a8, a1, 12            /* Save a8 */
 
-    /* Save the current stack pointer to stack_buffer */
-    l32i   a4, a2, 4          /* a4 = prempt_args->stack_buffer */
-    s32i   a1, a4, 0          /* Save stack pointer (a1) */
+    /* Use a5 as base pointer to state_buf */
+    mov    a5, a2                /* a5 = state_buf */
+
+    /* Save general-purpose registers into state_buf->registers */
+    s32i   a0, a5, 0             /* registers[0] */
+    s32i   a1, a5, 4             /* registers[1] */
+    s32i   a2, a5, 8             /* registers[2] */
+    s32i   a3, a5, 12            /* registers[3] */
+    /* Skip a4 (holds saved PS), save it later */
+    s32i   a5, a5, 20            /* registers[5] (a5 is base pointer) */
+    s32i   a6, a5, 24            /* registers[6] */
+    s32i   a7, a5, 28            /* registers[7] */
+    s32i   a8, a5, 32            /* registers[8] */
+    s32i   a9, a5, 36            /* registers[9] */
+    s32i   a10, a5, 40           /* registers[10] */
+    s32i   a11, a5, 44           /* registers[11] */
+    s32i   a12, a5, 48           /* registers[12] */
+    s32i   a13, a5, 52           /* registers[13] */
+    s32i   a14, a5, 56           /* registers[14] */
+    s32i   a15, a5, 60           /* registers[15] */
+
+    /* Save a4 (after we're done using it) */
+    s32i   a4, a5, 16            /* registers[4] (a4 holds saved PS) */
+
+    /* Load options->use_epc_reg */
+    l32i   a6, a3, 4             /* a6 = options->use_epc_reg */
+
+    /* Save the program counter */
+    beqz   a6, save_pc_normal    /* If use_epc_reg == 0, jump to save_pc_normal */
+
+    /* Save EPC register into state_buf->pc */
+    rsr    a7, EPC1              /* Read EPC1 register into a7 */
+    s32i   a7, a5, 64            /* state_buf->pc = EPC1 */
+
+    /* Save stack pointer */
+    s32i   a1, a5, 68            /* state_buf->sp */
+
+    b      save_stack            /* Jump to save_stack */
+
+save_pc_normal:
+    /* Save return address (from a0) into state_buf->pc */
+    s32i   a0, a5, 64            /* state_buf->pc = a0 */
+
+    /* Save stack pointer */
+    s32i   a1, a5, 68            /* state_buf->sp */
+
+save_stack:
+    /* Save stack_size from options */
+    l32i   a6, a3, 0             /* a6 = options->stack_size */
+    s32i   a6, a5, 76            /* state_buf->stack_size */
+
+    /* Save the stack contents */
+    l32i   a7, a5, 72            /* a7 = state_buf->stack (destination pointer) */
+    mov    a8, a1                /* a8 = current sp (source pointer) */
+
+    /* Calculate the number of words to copy */
+    srli   a6, a6, 2             /* a6 = stack_size / 4 */
+
+    beqz   a6, copy_stack_done   /* If stack_size == 0, skip copying */
+
+copy_stack_loop:
+    l32i   a9, a8, 0             /* Load word from source */
+    s32i   a9, a7, 0             /* Store word to destination */
+    addi   a8, a8, 4             /* Increment source pointer */
+    addi   a7, a7, 4             /* Increment destination pointer */
+    addi   a6, a6, -1            /* Decrement counter */
+    bnez   a6, copy_stack_loop   /* Loop if counter not zero */
+
+copy_stack_done:
+    /* Restore saved registers */
+    l32i   a5, a1, 0             /* Restore a5 */
+    l32i   a6, a1, 4             /* Restore a6 */
+    l32i   a7, a1, 8             /* Restore a7 */
+    l32i   a8, a1, 12            /* Restore a8 */
+    addi   a1, a1, 16            /* Adjust stack pointer back */
+
+    /* Re-enable interrupts by restoring PS */
+    wsr    a4, PS                /* Restore PS from a4 */
+    rsync                        /* Ensure PS is updated before proceeding */
 
     /* Return from the function */
     ret
 
     /*------------------------------------------------------------------------
      * Function: __asm_espx_restore_task_context
-     * Restores the task context from the buffers provided in prempt_args.
+     * Restores the task context from the state buffer provided.
+     * Interrupts are disabled during this operation.
      *
      * Arguments:
-     *   a2 - Pointer to dynsched_prempt_args_t structure
+     *   a2 - Pointer to dynsched_prempt_espx_state_buffer_t (state_buf)
      *------------------------------------------------------------------------*/
     .global __asm_espx_restore_task_context
 __asm_espx_restore_task_context:
-    /* Load the address of register_buffer from prempt_args */
-    l32i   a3, a2, 0          /* a3 = prempt_args->register_buffer */
+    /* Disable interrupts and save previous PS */
+    rsil   a4, 15                /* Disable interrupts, save PS to a4 */
 
-    /* Temporarily store the saved return address (a0) */
-    l32i   a5, a3, 0          /* a5 = saved a0 (return address) */
+    /* Save registers that will be modified */
+    addi   a1, a1, -12           /* Adjust stack pointer to save 3 registers */
+    s32i   a5, a1, 0             /* Save a5 */
+    s32i   a6, a1, 4             /* Save a6 */
+    s32i   a7, a1, 8             /* Save a7 */
 
-    /* Restore general-purpose registers except a1 (stack pointer) */
-    l32i   a2, a3, 8          /* Restore a2 */
-    l32i   a4, a3, 16         /* Restore a4 */
-    l32i   a6, a3, 24         /* Restore a6 */
-    l32i   a7, a3, 28         /* Restore a7 */
-    l32i   a8, a3, 32         /* Restore a8 */
-    l32i   a9, a3, 36         /* Restore a9 */
-    l32i   a10, a3, 40        /* Restore a10 */
-    l32i   a11, a3, 44        /* Restore a11 */
-    l32i   a12, a3, 48        /* Restore a12 */
-    l32i   a13, a3, 52        /* Restore a13 */
-    l32i   a14, a3, 56        /* Restore a14 */
-    l32i   a15, a3, 60        /* Restore a15 */
+    /* Use a5 as base pointer to state_buf */
+    mov    a5, a2                /* a5 = state_buf */
 
-    /* Restore the stack pointer */
-    l32i   a1, a3, 4          /* Restore a1 (stack pointer) */
+    /* Restore general-purpose registers from state_buf->registers */
+    l32i   a0, a5, 0             /* registers[0] */
+    l32i   a1, a5, 4             /* registers[1] (stack pointer) */
+    l32i   a2, a5, 8             /* registers[2] */
+    l32i   a3, a5, 12            /* registers[3] */
+    l32i   a4, a5, 16            /* registers[4] (a4 holds saved PS) */
+    /* Skip a5 (it's our base pointer) */
+    l32i   a6, a5, 24            /* registers[6] */
+    l32i   a7, a5, 28            /* registers[7] */
+    l32i   a8, a5, 32            /* registers[8] */
+    l32i   a9, a5, 36            /* registers[9] */
+    l32i   a10, a5, 40           /* registers[10] */
+    l32i   a11, a5, 44           /* registers[11] */
+    l32i   a12, a5, 48           /* registers[12] */
+    l32i   a13, a5, 52           /* registers[13] */
+    l32i   a14, a5, 56           /* registers[14] */
+    l32i   a15, a5, 60           /* registers[15] */
 
-    /* Restore a3 after using it */
-    l32i   a3, a3, 12         /* Restore a3 */
+    /* Restore a5 (after we're done using it) */
+    l32i   a5, a5, 20            /* registers[5] */
 
-    /* Restore the return address */
-    mov    a0, a5             /* a0 = saved return address */
+    /* Restore stack pointer */
+    l32i   a1, a2, 68            /* a1 = state_buf->sp */
 
-    /* Return from the function */
-    ret
+    /* Restore stack contents */
+    l32i   a6, a2, 76            /* a6 = state_buf->stack_size */
+    l32i   a7, a2, 72            /* a7 = state_buf->stack (source pointer) */
+    mov    a8, a1                /* a8 = current sp (destination pointer) */
+
+    /* Calculate the number of words to copy */
+    srli   a6, a6, 2             /* a6 = stack_size / 4 */
+
+    beqz   a6, restore_stack_done /* If stack_size == 0, skip copying */
+
+restore_stack_loop:
+    l32i   a9, a7, 0             /* Load word from source */
+    s32i   a9, a8, 0             /* Store word to destination */
+    addi   a7, a7, 4             /* Increment source pointer */
+    addi   a8, a8, 4             /* Increment destination pointer */
+    addi   a6, a6, -1            /* Decrement counter */
+    bnez   a6, restore_stack_loop /* Loop if counter not zero */
+
+restore_stack_done:
+    /* Restore program counter */
+    l32i   a6, a2, 64            /* a6 = state_buf->pc */
+
+    /* Restore saved registers */
+    l32i   a5, a1, 0             /* Restore a5 */
+    l32i   a6, a1, 4             /* Restore a6 */
+    l32i   a7, a1, 8             /* Restore a7 */
+    addi   a1, a1, 12            /* Adjust stack pointer back */
+
+    /* Re-enable interrupts by restoring PS */
+    wsr    a4, PS                /* Restore PS from a4 */
+    rsync                        /* Ensure PS is updated before proceeding */
+
+    /* Jump to the restored program counter */
+    jx     a6                    /* Jump to address in a6 */
+
+    /* This point is not reachable */
+    nop
