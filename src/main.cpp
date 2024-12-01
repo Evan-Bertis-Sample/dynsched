@@ -22,6 +22,11 @@ uint32_t amount_of_prempts = 100;
 int32_t *error_times;
 
 void setup() {
+
+    Serial.begin(9600);
+
+    Serial.println("dynsched test starting...");
+
     mem_manager = DYNSCHED_DEFAULT_MEM;
     dynsched_mem_init(&mem_manager, NULL);
 

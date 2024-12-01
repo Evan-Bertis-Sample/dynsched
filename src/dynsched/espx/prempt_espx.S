@@ -83,7 +83,7 @@ __asm_espx_save_task_context:
     /* Save stack pointer */
     s32i   a1, a5, 68            /* state_buf->sp */
 
-    b      save_stack            /* Jump to save_stack */
+    j      save_stack            /* Jump to save_stack */
 
 save_pc_normal:
     /* Save return address (from a0) into state_buf->pc */

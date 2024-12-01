@@ -103,11 +103,18 @@ void dynsched_prempt_espx_init(void *ctx) {
     timer_init(prempt_ctx->platform_config->group_num,
                prempt_ctx->platform_config->timer_num,
                &timer_config);
+
+    prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_IDLE;
 }
 
 void dynsched_prempt_espx_start(void *ctx) {
     DYNSCHED_PRINT("Starting ESP32 preemption interface\n");
     dynsched_prempt_espx_context_t *prempt_ctx = (dynsched_prempt_espx_context_t *)ctx;
+
+    if (prempt_ctx->state != DYNSCHED_PREMPT_ESPX_STATE_IDLE)
+    {
+        DYNSCHED_PRINT("ERROR: Starting ESP32 preemption interface in an invalid state!\n");
+    }
 }
 
 void dynsched_prempt_espx_stop(void *ctx) {
