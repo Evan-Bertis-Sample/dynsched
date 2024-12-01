@@ -4,6 +4,7 @@
 #include <driver/timer.h>
 
 #include "dynsched/prempt.h"
+#include "dynsched/mem_manager.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,8 +43,8 @@ typedef struct {
     dynsched_mem_manager_t *mem_manager;
 
     // state variables
-    dynsched_prempt_espx_state_t before_prempt_data;  // used to restore the data before the task was prempted
-    dynsched_prempt_espx_state_t prempt_task_data;    // used to restore data from the currently running task
+    dynsched_prempt_espx_state_buffer_t *before_prempt_data;  // used to restore the data before the task was prempted
+    dynsched_prempt_espx_state_buffer_t *prempt_task_data;    // used to restore data from the currently running task
 
     dynsched_prempt_espx_state_t state;
     dynsched_prempt_args_t *last_prempt;
@@ -83,6 +84,11 @@ void __asm_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_
 // use these functions to call the assembly functions, which is way nicer for debugging
 inline void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t options);
 inline void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf);
+
+dynsched_prempt_espx_state_buffer_t *dynsched_prempt_espx_state_buffer_create(dynsched_mem_manager_t *mem_manager, uint32_t stack_size);
+void dynsched_prempt_espx_state_buffer_resize(dynsched_mem_manager_t *mem_manager, dynsched_prempt_espx_state_buffer_t *state_buf, uint32_t stack_size);
+void dynsched_prempt_espx_state_buffer_destroy(dynsched_mem_manager_t *mem_manager, dynsched_prempt_espx_state_buffer_t *state_buf);
+
 
 #define DYNSCHED_PREMPT_ESPX                     \
     (dynsched_prempt_interface_t) {              \

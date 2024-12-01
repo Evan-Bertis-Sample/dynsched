@@ -22,17 +22,17 @@
 void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t options) {
     DYNSCHED_PRINT("Saving ESP32 task context\n");
     // disable interrupts, so we can save the context
-    portDISABLE_INTERRUPTS();
+    // portDISABLE_INTERRUPTS();
     __asm_espx_save_task_context(state_buf, &options);
-    portENABLE_INTERRUPTS();
+    // portENABLE_INTERRUPTS();
 }
 
 void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf) {
     DYNSCHED_PRINT("Restoring ESP32 task context\n");
     // disable interrupts, so we can restore the context
-    portDISABLE_INTERRUPTS();
+    // portDISABLE_INTERRUPTS();
     __asm_espx_restore_task_context(state_buf);
-    portENABLE_INTERRUPTS();
+    // portENABLE_INTERRUPTS();
 }
 
 bool espx_timer_isr_handler(void *args) {
@@ -51,12 +51,33 @@ bool espx_timer_isr_handler(void *args) {
             .stack_size = prempt_ctx->last_prempt->stack_size,  // save using the old stack size
             .use_epc_reg = true                                 // we are returning from an exception, so we should use the epc register
         };
-        dynsched_prempt_espx_save_task_context(&prempt_ctx->prempt_task_data, options);
+        dynsched_prempt_espx_save_task_context(prempt_ctx->prempt_task_data, options);
         prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_IDLE;
     }
 
     // now we should restore the old context, which was saved before the task was prempted
-    dynsched_prempt_espx_restore_task_context(&prempt_ctx->before_prempt_data);
+    dynsched_prempt_espx_restore_task_context(prempt_ctx->before_prempt_data);
+}
+
+dynsched_prempt_espx_state_buffer_t *dynsched_prempt_espx_create_state_buffer(dynsched_mem_manager_t *mem_manager, uint32_t stack_size) {
+    DYNSCHED_PRINT("Creating ESP32 state buffer\n");
+    dynsched_prempt_espx_state_buffer_t *state_buf = DYNSCHED_MALLOC(mem_manager, dynsched_prempt_espx_state_buffer_t);
+    state_buf->stack_size = stack_size;
+    state_buf->stack = dynsched_mem_alloc(mem_manager, stack_size);
+    return state_buf;
+}
+
+void dynsched_prempt_espx_state_buffer_resize(dynsched_mem_manager_t *mem_manager, dynsched_prempt_espx_state_buffer_t *state_buf, uint32_t new_stack_size) {
+    DYNSCHED_PRINT("Resizing ESP32 state buffer\n");
+    dynsched_mem_free(mem_manager, state_buf->stack);
+    state_buf->stack_size = new_stack_size;
+    state_buf->stack = dynsched_mem_alloc(mem_manager, new_stack_size);
+}
+
+void dynsched_prempt_espx_destroy_state_buffer(dynsched_mem_manager_t *mem_manager, dynsched_prempt_espx_state_buffer_t *state_buf) {
+    DYNSCHED_PRINT("Destroying ESP32 state buffer\n");
+    dynsched_mem_free(mem_manager, state_buf->stack);
+    dynsched_mem_free(mem_manager, state_buf);
 }
 
 /**------------------------------------------------------------------------
@@ -73,6 +94,11 @@ dynsched_prempt_interface_t *dynsched_prempt_espx_create(dynsched_mem_manager_t 
     // copy over the template defined in dynsched_prempt_espx.h
     *prempt = DYNSCHED_PREMPT_ESPX;
     prempt->platform_ctx = ctx;
+
+    // create the state buffers
+    ctx->before_prempt_data = dynsched_prempt_espx_create_state_buffer(mem_manager, 1024);
+    ctx->prempt_task_data = dynsched_prempt_espx_create_state_buffer(mem_manager, 1024);
+
     return prempt;
 }
 
@@ -105,6 +131,7 @@ void dynsched_prempt_espx_init(void *ctx) {
                &timer_config);
 
     prempt_ctx->state = DYNSCHED_PREMPT_ESPX_STATE_IDLE;
+
 }
 
 void dynsched_prempt_espx_start(void *ctx) {
@@ -114,7 +141,7 @@ void dynsched_prempt_espx_start(void *ctx) {
     if (prempt_ctx->state != DYNSCHED_PREMPT_ESPX_STATE_IDLE)
     {
         DYNSCHED_PRINT("ERROR: Starting ESP32 preemption interface in an invalid state!\n");
-    }
+    }            
 }
 
 void dynsched_prempt_espx_stop(void *ctx) {

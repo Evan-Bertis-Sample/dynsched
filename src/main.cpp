@@ -48,6 +48,7 @@ void loop() {
         dynsched_prempt_args_t prempt_args = {
             .task_data = NULL,
             .prempt_time = 100,
+            .stack_size = 1024,
             .prempt_func = test_task,
             .after_prempt_func = NULL,
         };
