@@ -8,6 +8,8 @@
  *
  *------------------------------------------------------------------------*/
 
+    .file 1 "prempt_espx.S"
+
     .section .text
     .align 4
 
@@ -39,6 +41,7 @@
      *------------------------------------------------------------------------*/
     .global __asm_espx_save_task_context
 __asm_espx_save_task_context:
+    .loc 1 10 0                  /* Source file: 'prempt_espx.S', line 10 */
     // /* Send debug message */
     // movi   a2, debug_msg_start
     // call0  printf
@@ -47,6 +50,7 @@ __asm_espx_save_task_context:
     // rsil   a4, 15                /* Disable interrupts, save PS to a4 */
 
     /* Save registers that will be modified */
+    .loc 1 20 0                  /* Source file: 'prempt_espx.S', line 20 */
     addi   a1, a1, -16           /* Adjust stack pointer to save 4 registers */
     s32i   a5, a1, 0             /* Save a5 */
     s32i   a6, a1, 4             /* Save a6 */
@@ -54,9 +58,11 @@ __asm_espx_save_task_context:
     s32i   a8, a1, 12            /* Save a8 */
 
     /* Use a5 as base pointer to state_buf */
+    .loc 1 25 0                  /* Source file: 'prempt_espx.S', line 25 */
     mov    a5, a2                /* a5 = state_buf */
 
     /* Save general-purpose registers into state_buf->registers */
+    .loc 1 30 0                  /* Source file: 'prempt_espx.S', line 30 */
     s32i   a0, a5, 0             /* registers[0] */
     s32i   a1, a5, 4             /* registers[1] */
     s32i   a2, a5, 8             /* registers[2] */
@@ -75,54 +81,70 @@ __asm_espx_save_task_context:
     s32i   a15, a5, 60           /* registers[15] */
 
     /* Save a4 (after we're done using it) */
+    .loc 1 35 0                  /* Source file: 'prempt_espx.S', line 35 */
     s32i   a4, a5, 16            /* registers[4] (a4 holds saved PS) */
 
     /* Load options->use_epc_reg */
+    .loc 1 40 0                  /* Source file: 'prempt_espx.S', line 40 */
     l32i   a6, a3, 4             /* a6 = options->use_epc_reg */
 
     /* Save the program counter */
+    .loc 1 45 0                  /* Source file: 'prempt_espx.S', line 45 */
     beqz   a6, save_pc_normal    /* If use_epc_reg == 0, jump to save_pc_normal */
 
     /* Save EPC register into state_buf->pc */
+    .loc 1 50 0                  /* Source file: 'prempt_espx.S', line 50 */
     rsr    a7, EPC1              /* Read EPC1 register into a7 */
     s32i   a7, a5, 64            /* state_buf->pc = EPC1 */
 
     /* Save stack pointer */
+    .loc 1 55 0                  /* Source file: 'prempt_espx.S', line 55 */
     s32i   a1, a5, 68            /* state_buf->sp */
 
+    /* Save stack_size from options */
+    .loc 1 60 0                  /* Source file: 'prempt_espx.S', line 60 */
     j      save_stack            /* Jump to save_stack */
 
 save_pc_normal:
     /* Save return address (from a0) into state_buf->pc */
+    .loc 1 65 0                  /* Source file: 'prempt_espx.S', line 65 */
     s32i   a0, a5, 64            /* state_buf->pc = a0 */
 
     /* Save stack pointer */
+    .loc 1 70 0                  /* Source file: 'prempt_espx.S', line 70 */
     s32i   a1, a5, 68            /* state_buf->sp */
 
 save_stack:
     /* Save stack_size from options */
+    .loc 1 75 0                  /* Source file: 'prempt_espx.S', line 75 */
     l32i   a6, a3, 0             /* a6 = options->stack_size */
     s32i   a6, a5, 76            /* state_buf->stack_size */
 
     /* Save the stack contents */
+    .loc 1 80 0                  /* Source file: 'prempt_espx.S', line 80 */
     l32i   a7, a5, 72            /* a7 = state_buf->stack (destination pointer) */
     mov    a8, a1                /* a8 = current sp (source pointer) */
 
     /* Calculate the number of words to copy */
+    .loc 1 85 0                  /* Source file: 'prempt_espx.S', line 85 */
     srli   a6, a6, 2             /* a6 = stack_size / 4 */
 
     beqz   a6, copy_stack_done   /* If stack_size == 0, skip copying */
 
 copy_stack_loop:
+    .loc 1 90 0                  /* Source file: 'prempt_espx.S', line 90 */
     l32i   a9, a8, 0             /* Load word from source */
     s32i   a9, a7, 0             /* Store word to destination */
     addi   a8, a8, 4             /* Increment source pointer */
     addi   a7, a7, 4             /* Increment destination pointer */
     addi   a6, a6, -1            /* Decrement counter */
+
+    .loc 1 95 0                  /* Source file: 'prempt_espx.S', line 95 */
     bnez   a6, copy_stack_loop   /* Loop if counter not zero */
 
 copy_stack_done:
     /* Restore saved registers */
+    .loc 1 100 0                 /* Source file: 'prempt_espx.S', line 100 */
     l32i   a5, a1, 0             /* Restore a5 */
     l32i   a6, a1, 4             /* Restore a6 */
     l32i   a7, a1, 8             /* Restore a7 */
@@ -134,6 +156,7 @@ copy_stack_done:
     // rsync                        /* Ensure PS is updated before proceeding */
 
     /* Return from the function */
+    .loc 1 105 0                 /* Source file: 'prempt_espx.S', line 105 */
     ret
 
     /*------------------------------------------------------------------------
