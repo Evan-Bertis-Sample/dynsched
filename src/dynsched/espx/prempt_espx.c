@@ -22,14 +22,15 @@
 void dynsched_prempt_espx_save_task_context(dynsched_prempt_espx_state_buffer_t *state_buf, dynsched_prempt_espx_state_save_options_t options) {
     DYNSCHED_PRINT("Saving ESP32 task context\n");
     // disable interrupts, so we can save the context
-    portDISABLE_INTERRUPTS();
+    // portDISABLE_INTERRUPTS();
     // for now, just to check for errors, write some random data to the stack
     // memset(state_buf->stack, 0x55, state_buf->stack_size);
+    DYNSCHED_PRINT("Assembly Instruction address: %p\n", __asm_espx_save_task_context);
     __asm_espx_save_task_context(state_buf, &options);
 
     DYNSCHED_PRINT("Saved ESP32 task context\n");
     DYNSCHED_PRINT("Stack size: %d\n", state_buf->stack_size);
-    portENABLE_INTERRUPTS();
+    // portENABLE_INTERRUPTS();
 }
 
 void dynsched_prempt_espx_restore_task_context(dynsched_prempt_espx_state_buffer_t *state_buf) {
@@ -101,8 +102,8 @@ dynsched_prempt_interface_t *dynsched_prempt_espx_create(dynsched_mem_manager_t 
     prempt->platform_ctx = ctx;
 
     // create the state buffers
-    ctx->before_prempt_data = dynsched_prempt_espx_create_state_buffer(mem_manager, 1024);
-    ctx->prempt_task_data = dynsched_prempt_espx_create_state_buffer(mem_manager, 1024);
+    ctx->before_prempt_data = dynsched_prempt_espx_create_state_buffer(mem_manager, 64);
+    ctx->prempt_task_data = dynsched_prempt_espx_create_state_buffer(mem_manager, 64);
 
     return prempt;
 }

@@ -18,7 +18,7 @@
      * registers[0..15]: offsets 0 to 60 (0x00 to 0x3C)
      * pc: offset 64 (0x40)
      * sp: offset 68 (0x44)
-     * stack: offset 72 (0x48)
+     * stack:  offset 72 (0x48)
      * stack_size: offset 76 (0x4C)
      */
 
@@ -26,10 +26,6 @@
     /* stack_size: offset 0
      * use_epc_reg: offset 4
      */
-
-
-    .extern printf  /* Assume this function sends a string over UART */
-
     /*------------------------------------------------------------------------
      * Function: __asm_espx_save_task_context
      * Saves the current task context into the state buffer provided.
@@ -41,6 +37,7 @@
      *------------------------------------------------------------------------*/
     .global __asm_espx_save_task_context
 __asm_espx_save_task_context:
+    ret
     .loc 1 10 0                  /* Source file: 'prempt_espx.S', line 10 */
     // /* Send debug message */
     // movi   a2, debug_msg_start
@@ -79,6 +76,7 @@ __asm_espx_save_task_context:
     s32i   a13, a5, 52           /* registers[13] */
     s32i   a14, a5, 56           /* registers[14] */
     s32i   a15, a5, 60           /* registers[15] */
+
 
     /* Save a4 (after we're done using it) */
     .loc 1 35 0                  /* Source file: 'prempt_espx.S', line 35 */
