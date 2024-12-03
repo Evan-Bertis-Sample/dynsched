@@ -117,4 +117,7 @@ void test_task(void *data) {
     int32_t error_time = (int32_t)millis() - (int32_t)last_prempt_request;
     error_times[prempt_counter] = error_time;
     prempt_counter++;
+
+    // random delay
+    delay(random(prempt_interval / 2, prempt_interval * 2));
 }
